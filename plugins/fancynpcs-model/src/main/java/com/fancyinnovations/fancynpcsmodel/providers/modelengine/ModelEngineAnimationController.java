@@ -110,6 +110,10 @@ public final class ModelEngineAnimationController implements AutoCloseable {
                 && manualPose.loopMode() != BlueprintAnimation.LoopMode.ONCE;
     }
 
+    public boolean isPoseActive() {
+        return !closed && manualPose != null && !finished(manualPose);
+    }
+
     public boolean isHeadTrackingPaused() {
         return !closed && (pausesHead(manualPose) || pausesHead(manualGesture));
     }

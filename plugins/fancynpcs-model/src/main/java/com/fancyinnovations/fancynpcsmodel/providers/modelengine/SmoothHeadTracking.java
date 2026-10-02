@@ -14,6 +14,7 @@ public final class SmoothHeadTracking {
     private Config config;
     private boolean initialized;
     private double bodyYaw;
+    private double placementYaw;
     private double headYawOffset;
     private double headPitch;
     private UUID targetId;
@@ -21,6 +22,9 @@ public final class SmoothHeadTracking {
     private double missingSeconds;
     private double desiredYaw;
     private double desiredPitch;
+    private boolean targetObserved;
+    private boolean followingWithBody;
+    private double bodyDelaySeconds;
 
     public SmoothHeadTracking(Config config) {
         this.config = Objects.requireNonNull(config, "config");
@@ -28,7 +32,9 @@ public final class SmoothHeadTracking {
 
     /** Keep the pose and selected player across reload; new limits converge smoothly. */
     public void reconfigure(Config config) {
-        this.config = Objects.requireNonNull(config, "config");
+        Objects.requireNonNull(config, "config");
+        if (!this.config.bodyFollow.equals(config.bodyFollow)) resetBodyFollow();
+        this.config = config;
     }
 
     /** Reset on model creation or an intentional teleport/orientation reset. */
@@ -36,6 +42,7 @@ public final class SmoothHeadTracking {
         requireFinite(bodyYaw, "bodyYaw");
         requirePitch(neutralPitch, "neutralPitch");
         this.bodyYaw = wrapDegrees(bodyYaw);
+        placementYaw = this.bodyYaw;
         headYawOffset = 0;
         headPitch = clamp(neutralPitch, -config.maxPitchDegrees, config.maxPitchDegrees);
         targetId = null;
@@ -43,17 +50,25 @@ public final class SmoothHeadTracking {
         missingSeconds = 0;
         desiredYaw = this.bodyYaw;
         desiredPitch = headPitch;
+        targetObserved = false;
+        resetBodyFollow();
         initialized = true;
     }
 
     /**
      * Select a stable target and advance one sample. A range of zero disables
-     * tracking and smoothly returns the head to its neutral pose. The body
-     * follows only the supplied NPC yaw, never the selected player's direction.
+     * tracking and smoothly returns the head to the body's current direction.
+     * An unchanged placement yaw must not undo the body's tracking rotation.
      * Lag spikes cannot move the head by more than 250 ms of configured speed.
      */
     public Pose tick(double bodyYaw, double neutralPitch, double trackingRange,
                      Collection<Candidate> candidates, double elapsedSeconds) {
+        return tick(bodyYaw, neutralPitch, trackingRange, candidates, elapsedSeconds, true);
+    }
+
+    /** Held poses can allow head tracking while pausing whole-body rotation. */
+    public Pose tick(double bodyYaw, double neutralPitch, double trackingRange,
+                     Collection<Candidate> candidates, double elapsedSeconds, boolean allowBodyFollow) {
         requireFinite(bodyYaw, "bodyYaw");
         requirePitch(neutralPitch, "neutralPitch");
         requireFinite(trackingRange, "trackingRange");
@@ -64,7 +79,13 @@ public final class SmoothHeadTracking {
         // Reject bad samples before changing state, including on an empty range.
         for (Candidate candidate : candidates) Objects.requireNonNull(candidate, "candidate");
         if (!initialized) reset(bodyYaw, neutralPitch);
-        this.bodyYaw += wrapDegrees(bodyYaw - this.bodyYaw);
+        if (Math.abs(wrapDegrees(bodyYaw - placementYaw)) > 0.000001) {
+            // Only an actual placement-orientation change resets the body.
+            // The model's live rotation never writes back to NPC save data.
+            this.bodyYaw += wrapDegrees(bodyYaw - this.bodyYaw);
+            placementYaw = wrapDegrees(bodyYaw);
+            resetBodyFollow();
+        }
 
         if (trackingRange == 0) {
             clearTarget();
@@ -78,7 +99,42 @@ public final class SmoothHeadTracking {
         double stepSeconds = Math.min(elapsedSeconds, 0.25);
         headYawOffset = approach(headYawOffset, wantedOffset, config.yawSpeedDegreesPerSecond, stepSeconds);
         headPitch = approach(headPitch, wantedPitch, config.pitchSpeedDegreesPerSecond, stepSeconds);
+        followWithBody(allowBodyFollow, stepSeconds);
         return new Pose(this.bodyYaw, this.bodyYaw + headYawOffset, headPitch, targetId);
+    }
+
+    private void followWithBody(boolean allowed, double seconds) {
+        BodyFollow follow = config.bodyFollow;
+        if (!follow.enabled || !allowed || !targetObserved || targetId == null) {
+            resetBodyFollow();
+            return;
+        }
+        if (!followingWithBody) {
+            if (Math.abs(headYawOffset) < follow.startAngleDegrees - config.deadZoneDegrees) {
+                bodyDelaySeconds = 0;
+                return;
+            }
+            bodyDelaySeconds += seconds;
+            if (bodyDelaySeconds + 1e-9 < follow.delaySeconds) return;
+            followingWithBody = true;
+        }
+        if (Math.abs(headYawOffset) <= follow.stopAngleDegrees) {
+            resetBodyFollow();
+            return;
+        }
+        // Chase the head's actual direction, so even a very fast configured
+        // body cannot overtake it. Preserve world-space head yaw while the
+        // shoulders catch up; adding body rotation to the head would twitch.
+        double step = headYawOffset * -Math.expm1(-follow.responsePerSecond * seconds);
+        double rotation = clamp(step, -follow.yawSpeedDegreesPerSecond * seconds,
+                follow.yawSpeedDegreesPerSecond * seconds);
+        bodyYaw += rotation;
+        headYawOffset -= rotation;
+    }
+
+    private void resetBodyFollow() {
+        followingWithBody = false;
+        bodyDelaySeconds = 0;
     }
 
     private double desiredOffset() {
@@ -93,6 +149,7 @@ public final class SmoothHeadTracking {
     }
 
     private void selectTarget(double range, Collection<Candidate> candidates, double elapsedSeconds) {
+        targetObserved = false;
         Candidate current = null;
         Candidate nearest = null;
         double acquisitionSquared = range * range;
@@ -111,6 +168,7 @@ public final class SmoothHeadTracking {
         }
 
         if (current != null) {
+            targetObserved = true;
             missingSeconds = 0;
             targetHoldSeconds += elapsedSeconds;
             double ratioSquared = config.switchDistanceRatio * config.switchDistanceRatio;
@@ -138,12 +196,16 @@ public final class SmoothHeadTracking {
         desiredPitch = candidate.pitch;
         targetHoldSeconds = 0;
         missingSeconds = 0;
+        targetObserved = true;
+        resetBodyFollow();
     }
 
     private void clearTarget() {
         targetId = null;
         targetHoldSeconds = 0;
         missingSeconds = 0;
+        targetObserved = false;
+        resetBodyFollow();
     }
 
     private double approach(double current, double desired, double speed, double seconds) {
@@ -190,8 +252,9 @@ public final class SmoothHeadTracking {
                          double yawSpeedDegreesPerSecond, double pitchSpeedDegreesPerSecond,
                          double responsePerSecond, double deadZoneDegrees,
                          double switchDistanceRatio, double minimumTargetHoldSeconds,
-                         double lostTargetGraceSeconds, double exitRangeMultiplier) {
+                         double lostTargetGraceSeconds, double exitRangeMultiplier, BodyFollow bodyFollow) {
         public Config {
+            Objects.requireNonNull(bodyFollow, "bodyFollow");
             positive(maxYawDegrees, "maxYawDegrees");
             if (maxYawDegrees >= 180) throw new IllegalArgumentException("maxYawDegrees must be less than 180");
             positive(maxPitchDegrees, "maxPitchDegrees");
@@ -209,10 +272,20 @@ public final class SmoothHeadTracking {
             nonnegative(lostTargetGraceSeconds, "lostTargetGraceSeconds");
             requireFinite(exitRangeMultiplier, "exitRangeMultiplier");
             if (exitRangeMultiplier < 1) throw new IllegalArgumentException("exitRangeMultiplier must be at least 1");
+            if (bodyFollow.enabled && bodyFollow.startAngleDegrees > maxYawDegrees) {
+                throw new IllegalArgumentException("Body start angle must not exceed the head yaw limit");
+            }
         }
 
         public static Config defaults() {
-            return new Config(65, 35, 180, 120, 8, 0.25, 0.8, 0.75, 0.2, 1.15);
+            return new Config(65, 35, 180, 120, 8, 0.25, 0.8, 0.75, 0.2, 1.15, BodyFollow.defaults());
+        }
+
+        public Config withBodyFollow(BodyFollow follow) {
+            return new Config(maxYawDegrees, maxPitchDegrees, yawSpeedDegreesPerSecond,
+                    pitchSpeedDegreesPerSecond, responsePerSecond, deadZoneDegrees,
+                    switchDistanceRatio, minimumTargetHoldSeconds, lostTargetGraceSeconds,
+                    exitRangeMultiplier, follow);
         }
 
         private static void positive(double value, String name) {
@@ -223,6 +296,28 @@ public final class SmoothHeadTracking {
         private static void nonnegative(double value, String name) {
             requireFinite(value, name);
             if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative");
+        }
+    }
+
+    public record BodyFollow(boolean enabled, double startAngleDegrees, double stopAngleDegrees,
+                             double delaySeconds, double yawSpeedDegreesPerSecond,
+                             double responsePerSecond, boolean pauseDuringPose) {
+        public BodyFollow {
+            Config.positive(startAngleDegrees, "body startAngleDegrees");
+            if (startAngleDegrees >= 180) throw new IllegalArgumentException("Body start angle must be less than 180");
+            Config.nonnegative(stopAngleDegrees, "body stopAngleDegrees");
+            if (stopAngleDegrees >= startAngleDegrees) throw new IllegalArgumentException("Body stop angle must be less than start angle");
+            Config.nonnegative(delaySeconds, "body delaySeconds");
+            Config.positive(yawSpeedDegreesPerSecond, "body yawSpeedDegreesPerSecond");
+            Config.positive(responsePerSecond, "body responsePerSecond");
+        }
+
+        public static BodyFollow defaults() {
+            return new BodyFollow(true, 35, 2, 0.3, 90, 5, true);
+        }
+
+        public static BodyFollow disabled() {
+            return new BodyFollow(false, 35, 2, 0.3, 90, 5, true);
         }
     }
 }

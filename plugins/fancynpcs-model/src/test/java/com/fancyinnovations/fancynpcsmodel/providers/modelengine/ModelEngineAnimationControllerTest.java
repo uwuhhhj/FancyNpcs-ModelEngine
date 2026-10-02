@@ -78,6 +78,18 @@ class ModelEngineAnimationControllerTest {
         }
     }
 
+    @Test void oneShotPoseIsActiveWithoutBeingHeldAndEndsCleanly() {
+        FakeBackend backend = new FakeBackend();
+        ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
+        assertTrue(controller.play("sit", false));
+        assertTrue(controller.isPoseActive());
+        assertFalse(controller.isPoseHeld());
+        backend.layers.get(5).ended = true;
+        controller.update(1);
+        assertFalse(controller.isPoseActive());
+        assertEquals(3, backend.layers.values().stream().filter(track -> track.priority <= 3).count());
+    }
+
     @Test void optionalRandomGesturesRespectPauseAndCanOverlayPoseWithoutCancellingIt() {
         for (boolean pauseDuringPose : List.of(false, true)) {
             FakeBackend backend = new FakeBackend();

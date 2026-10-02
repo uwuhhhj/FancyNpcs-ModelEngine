@@ -42,10 +42,10 @@
     "Model animations do not grant NPC flight or crawling movement."
   ],
   "publication_note": "Local machine paths and runtime files are excluded from this public report.",
-  "generated_utc": "2026-10-02T18:01:48.812721+00:00",
+  "generated_utc": "2026-10-02T19:14:31.674373+00:00",
   "versions": {
     "FancyNpcs": "2.12.2-simmc-me.1",
-    "FancyNpcsModel": "1.3.0-simmc-me.1"
+    "FancyNpcsModel": "1.3.1-simmc-me.1"
   },
   "build": {
     "result": "passed",
@@ -137,28 +137,28 @@
     }
   },
   "unit_tests": {
-    "tests": 29,
+    "tests": 42,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "suites": [
       {
         "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest",
-        "tests": 9,
+        "tests": 10,
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "timestamp_utc": "2026-10-02T17:48:37.698Z",
-        "seconds": 0.044
+        "timestamp_utc": "2026-10-02T19:06:32.306Z",
+        "seconds": 0.045
       },
       {
         "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest",
-        "tests": 12,
+        "tests": 24,
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "timestamp_utc": "2026-10-02T17:48:37.743Z",
-        "seconds": 0.019
+        "timestamp_utc": "2026-10-02T19:06:32.353Z",
+        "seconds": 0.034
       },
       {
         "suite": "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest",
@@ -166,8 +166,8 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "timestamp_utc": "2026-10-02T17:48:37.218Z",
-        "seconds": 0.477
+        "timestamp_utc": "2026-10-02T19:06:31.745Z",
+        "seconds": 0.559
       }
     ],
     "cases": [
@@ -178,20 +178,33 @@
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.sameNameReplayCannotStopTheNewPropertyAndCancelledReplacementKeepsOldPose()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.disablingAmbientLeavesDefaultStatesAndManualCommandsAvailable()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.onceGestureUsesOnceEvenForAHoldingBlueprintAndReturnsToExistingDefault()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.oneShotPoseIsActiveWithoutBeingHeldAndEndsCleanly()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.optionalRandomGesturesRespectPauseAndCanOverlayPoseWithoutCancellingIt()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.invalidBlendAndCollidingLayersAreRejectedBeforePlayingAnything()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.deadZoneSuppressesTinyTargetJitterAndResetClearsTarget()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.bodyCatchesUpWithoutAddingItsRotationToHeadSpeed()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.malformedInputCannotPoisonAnExistingTrackingState()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.bodySettingsRejectInvalidThresholdsTimingAndSpeeds()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.acquisitionAndExitRangesHaveHysteresis()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.headTurnsGraduallyWithoutMovingTheNpcBody()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.reloadPreservesTurnedHeadingAndAppliesNewBodySpeedLimit()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.targetCrossingDirectlyBehindTheNpcDoesNotAlternateNeckSides()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.headOnlyConfigurationKeepsTheBodyStill()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.temporaryMissingTargetIsRetainedThenHeadReturnsSmoothly()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.disablingTrackingReleasesImmediatelyButDoesNotSnapHead()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.rearTargetJitterDoesNotKeepReversingTheBodyTurn()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.aPlayerBehindCannotTurnTheHeadOrPitchBeyondConfiguredLimits()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.wholeBodyTurnsAcrossYawBoundaryWhilePlacementYawStaysUnchanged()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.aFastBodyCannotOvertakeASlowHead()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.disablingBodyFollowKeepsCurrentHeadingAndContinuesHeadTracking()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.poseCanPauseBodyWhileHeadLooksAroundThenResumeAfterDelay()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.nearEqualDistancesAndReversedIterationDoNotSwitchPlayers()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.crossingYawBoundaryTakesTheShortPathAndKeepsContinuousAngles()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.intentionalNpcOrientationChangeResetsPlacementButNotEveryTick()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.losingTargetStopsBodyImmediatelyAndHeadReturnsToNewBodyDirection()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.switchingPlayersRestartsBodyDelayWithoutSnappingHeading()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.substantiallyCloserPlayerMustWaitForMinimumTargetHold()",
       "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.configurationReloadRetainsTargetAndMovesTowardNewLimitsWithoutReset()",
+      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.defaultBodyFollowWaitsForHeadAngleAndConfiguredDelay()",
       "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.unprefixedNamesKeepBetterModelPriorityWhenBothHaveTheModel()",
       "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.singleProviderSuggestionsRemainValidAfterFancyNpcsReloadsSavedAttributes()",
       "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.removeAttemptsEveryProviderEvenIfOneCleanupFails()",
@@ -214,9 +227,9 @@
       "commercial_model_classes_bundled": false
     },
     {
-      "filename": "FancyNpcsModel-1.3.0-simmc-me.1.jar",
-      "bytes": 609464,
-      "sha256": "2a3b56eafd526d5b32560fd3690feb15d9a2e3630698f6cd000c856b74ba6792",
+      "filename": "FancyNpcsModel-1.3.1-simmc-me.1.jar",
+      "bytes": 613236,
+      "sha256": "6ac7aa84cec602d5acd53a37efd35eff4d3766606b94c2f6eee91c877570f6c8",
       "zip_crc": "passed",
       "duplicate_entries": 0,
       "authors_verified": true,
@@ -229,39 +242,46 @@
     "binding": "127.0.0.1:25579",
     "online_players": 0,
     "lifecycle_checks": [
-      "[02:57:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=7cf79549-416d-49fe-b070-da3edfdc31af saveToFile=false, zero observers",
-      "[02:57:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[02:57:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=887bc909-cd33-4cdb-9d09-16c1e535a81c",
-      "[02:57:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[02:57:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation wave loop accepted by ME on main thread",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.5 box=0.30000001192092896x0.875x0.30000001192092896",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation-switch wave -> sit HOLD; outgoing 0.05s blend ended in 3 Paper ticks; all ambient properties retained",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=head-pause sleep pauses tracking policy; zero players, rendered head motion is not tested",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=idle-reset manual pose ended; one default idle; tracking policy resumed",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-disable real config reload disabled ambient layers; external priority 99 and default idle retained",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-restore real config reload restored all three ambient layers and preserved external property identity",
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
-      "[02:57:52] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
-      "[02:57:52] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] SUCCESS headless lifecycle + USM motion layers/reload passed; client visuals/head turning/right-click packets remain manual checks"
+      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=c97d8a2c-4bde-434f-8768-22c4fbdc3361 saveToFile=false, zero observers",
+      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
+      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=4e17bfe6-d6c0-4816-af20-832f4777e03b",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation wave loop accepted by ME on main thread",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.5 box=0.30000001192092896x0.875x0.30000001192092896",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation-switch wave -> sit HOLD; outgoing 0.05s blend ended in 3 Paper ticks; all ambient properties retained",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=head-pause sleep pauses tracking policy; zero players, rendered head motion is not tested",
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=idle-reset manual pose ended; one default idle; tracking policy resumed",
+      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-disable real config reload disabled ambient layers; external priority 99 and default idle retained",
+      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-restore real config reload restored all three ambient layers and preserved external property identity",
+      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
+      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
+      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] SUCCESS headless lifecycle + USM motion layers/reload passed; client visuals/head turning/right-click packets remain manual checks"
     ],
     "persistence_checks": [
-      "[02:58:37] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=6f65fb7c-5819-44db-862e-56760121b337 saveToFile=true, zero observers",
-      "[02:58:37] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[02:58:37] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=93d80fec-e36b-433e-b56b-25620aba5a35",
-      "[02:58:37] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[02:58:37] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_WRITE id=6f65fb7c-5819-44db-862e-56760121b337 real manager save; fixture remains for next boot; addon shutdown owns ME cleanup",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=964b5f2e-9dce-4329-a817-e0c2b34d919e",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=persist-auto-restore Existing fixture recovered its ME model without a probe apply/create call",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
-      "[02:59:33] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_READ automatic model restoration and record/model deletion passed"
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=1cc15f49-1398-495e-ba5b-09e3dd26d104 saveToFile=true, zero observers",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=4d00bc54-5e77-463a-ad24-ee3b28341071",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
+      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_WRITE id=1cc15f49-1398-495e-ba5b-09e3dd26d104 real manager save; fixture remains for next boot; addon shutdown owns ME cleanup",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=52471f75-e2f6-4934-b118-68c0356fc1e2",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=persist-auto-restore Existing fixture recovered its ME model without a probe apply/create call",
+      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
+      "[04:12:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
+      "[04:12:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_READ automatic model restoration and record/model deletion passed"
     ],
     "motion_layers_and_config_reload": "passed",
     "normal_shutdown": "passed",
+    "body_follow": "Synthetic target samples exercise the disposable NPC tracking policy; real provider ticks apply body rotation through ModelEngine. Actual players and client frames are not covered.",
     "animation_fade_observations": [
-      "[02:57:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] WAIT stage=animation-fade paperTicks=2 meTicks=2 phase=LERPOUT lerpOutTime=0.0675 stopping=true ended=false"
+      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] WAIT stage=animation-fade paperTicks=2 meTicks=2 phase=LERPOUT lerpOutTime=0.0675 stopping=true ended=false"
     ],
     "normal_shutdown_runs": 3,
     "installed_artifacts": [
@@ -271,13 +291,14 @@
         "matches_final_artifact": true
       },
       {
-        "filename": "FancyNpcsModel-1.3.0-simmc-me.1.jar",
-        "sha256": "2a3b56eafd526d5b32560fd3690feb15d9a2e3630698f6cd000c856b74ba6792",
+        "filename": "FancyNpcsModel-1.3.1-simmc-me.1.jar",
+        "sha256": "6ac7aa84cec602d5acd53a37efd35eff4d3766606b94c2f6eee91c877570f6c8",
         "matches_final_artifact": true
       }
     ],
     "environment_notes": [
-      "All runs were headless with zero observers; packet clicks and rendered motion are not covered."
+      "All runs were headless with zero observers; packet clicks and rendered motion are not covered.",
+      "The upstream FancyAnalytics SDK emitted remote event response errors; probe integration checks passed."
     ]
   },
   "upstream_core_dispatch_sources_unchanged": [
@@ -301,27 +322,27 @@
   "evidence": [
     {
       "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.xml",
-      "sha256": "6c82f2b2dbf78c5a29091ab7dae1a366aeb4f9d3ad421114ff18a4cd446cba04"
+      "sha256": "efe6be9596751bd6b9ebc6cdbfc99b219e26347ed07cd2b537309237075019ee"
     },
     {
       "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.xml",
-      "sha256": "29f3c9f59264e34c8e31a85d6e6918fad9ab4a5cd388ade3d1f50c489e3f555c"
+      "sha256": "15e4fedd55a4192a75e7356680d012cc530c3f3692a507c853da58d0a9a3a062"
     },
     {
       "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.xml",
-      "sha256": "b94acc24e56401a0bac7559ac9130dcc80cd57d65c83f45950617ff96676c9ed"
+      "sha256": "2331880e19f83209d7cbba50803cdb223688160a1ae0fe87c0c2823d62b29ef8"
     },
     {
       "filename": "lifecycle.log",
-      "sha256": "36cd844dfe14161f1e3b30ab36cf5da267e21ac87273dcff51af0d67ae6b4073"
+      "sha256": "b290fae5a4b7f65e467f8bb10c29a6e164c5a677e1cb403df3ede72f565db76e"
     },
     {
       "filename": "persist-write.log",
-      "sha256": "356754315ec61bab01fd1f68d25d4bfdd54a05e708f5e1bdc7efbff65e3e7c1f"
+      "sha256": "98532699b3e4616a74b3cf4b2f5b231da602729f704b0bb7ae4668ba746d6ae2"
     },
     {
       "filename": "persist-read.log",
-      "sha256": "27764134342d9753c3e57d7a9cbd3048596b8f8a561f00f3e96df0ab6e201ff6"
+      "sha256": "b6c37246681c8719a5f4db7dc8e23b1a82421e77bad55df0e98f023c6f62724f"
     }
   ]
 }

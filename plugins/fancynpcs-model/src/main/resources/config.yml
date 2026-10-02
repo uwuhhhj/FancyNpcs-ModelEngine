@@ -10,7 +10,7 @@ settings:
     head-tracking:
       # 还需对 NPC 启用 /npc turn_to_player <npc> true；追踪范围沿用 FancyNpcs 设置。
       enabled: true
-      # 相对于 NPC 身体朝向的头部旋转限制，单位：度。
+      # 相对于身体当前朝向的头部旋转限制，单位：度。
       max-yaw-degrees: 65.0
       max-pitch-degrees: 35.0
       # 每秒最大转动角度；默认每 tick 最多水平 9 度、垂直 6 度。
@@ -25,6 +25,19 @@ settings:
       lost-target-grace-seconds: 0.2
       # 当前目标可在基础追踪范围外额外停留 15%，减少边界抖动。
       exit-range-multiplier: 1.15
+    body-follow:
+      # 默认头先看过去，身体随后平滑跟上；关闭后保持身体当前朝向。
+      enabled: true
+      # 头部相对肩膀偏转达到此角度并持续 delay-seconds 后开始转身。
+      # 超过 head-tracking.max-yaw-degrees 的值会自动限制到头部角度上限。
+      start-angle-degrees: 35.0
+      # 身体开始跟随后持续追到基本对齐，不在起转阈值附近反复启停。
+      stop-angle-degrees: 2.0
+      delay-seconds: 0.3
+      yaw-speed-degrees-per-second: 90.0
+      response-per-second: 5.0
+      # 坐下等姿态可继续转头，身体保持原朝向；睡眠等动作同时暂停头部追踪。
+      pause-during-pose: true
     idle:
       # 自动循环微动作；设为 false 可关闭本插件的自动微动作及随机手势。
       enabled: true

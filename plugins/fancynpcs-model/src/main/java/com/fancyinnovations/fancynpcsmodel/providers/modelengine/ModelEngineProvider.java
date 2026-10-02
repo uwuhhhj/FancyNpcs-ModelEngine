@@ -144,8 +144,8 @@ public final class ModelEngineProvider implements ModelProvider {
             model.setScale(scale);
             model.setHitboxScale(scale);
             modeled.addModel(model, true);
-            // Fixed packet NPCs have no AI body rotation. Do not let ME's body
-            // controller pull the body after the head and fight the NPC yaw.
+            // Own head/body rotation together; bypass ME's automatic controller.
+            // SmoothHeadTracking rotates both through explicit modeled setters.
             modeled.setModelRotationLocked(true);
             if (modeled.getModel(blueprint.getName()).orElse(null) != model) {
                 throw new IllegalStateException("ModelEngine model attachment was cancelled");
@@ -341,7 +341,8 @@ public final class ModelEngineProvider implements ModelProvider {
         applied.viewers.clear();
         applied.viewers.addAll(desired);
         SmoothHeadTracking.Pose facing = applied.headTracking.tick(target.getYaw(), target.getPitch(),
-                track ? Math.max(0, turnDistance) : 0, candidates, .05);
+                track ? Math.max(0, turnDistance) : 0, candidates, .05,
+                !settings.headTracking().bodyFollow().pauseDuringPose() || !applied.animations.isPoseActive());
         applied.modeled.setYBodyRot((float) facing.bodyYaw());
         applied.modeled.setYHeadRot((float) facing.headYaw());
         applied.modeled.setXHeadRot((float) facing.headPitch());

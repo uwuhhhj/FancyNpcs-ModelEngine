@@ -54,7 +54,7 @@ public class FancyNpcsModelConfigImpl {
         ));
 
         field("head-tracking.enabled", true, Boolean.class, "Smoothly look at players when turn_to_player is enabled.");
-        number("head-tracking.max-yaw-degrees", 65, "Maximum head yaw relative to the NPC's fixed body.");
+        number("head-tracking.max-yaw-degrees", 65, "Maximum head yaw relative to the body's current direction.");
         number("head-tracking.max-pitch-degrees", 35, "Maximum head pitch in either direction.");
         number("head-tracking.yaw-speed-degrees-per-second", 180, "Maximum horizontal head turning speed.");
         number("head-tracking.pitch-speed-degrees-per-second", 120, "Maximum vertical head turning speed.");
@@ -64,6 +64,13 @@ public class FancyNpcsModelConfigImpl {
         number("head-tracking.minimum-target-hold-seconds", .75, "Minimum duration to keep a valid look target.");
         number("head-tracking.lost-target-grace-seconds", .2, "Grace period before returning to the original direction.");
         number("head-tracking.exit-range-multiplier", 1.15, "Exit distance multiplier to avoid flickering at the range boundary.");
+        field("body-follow.enabled", true, Boolean.class, "Let the body smoothly follow the head after a delay.");
+        number("body-follow.start-angle-degrees", 35, "Start the body after the head turns this far from the shoulders.");
+        number("body-follow.stop-angle-degrees", 2, "Stop following when the head and body are nearly aligned.");
+        number("body-follow.delay-seconds", .3, "Time the head must stay beyond the start angle before the body follows.");
+        number("body-follow.yaw-speed-degrees-per-second", 90, "Maximum body turning speed.");
+        number("body-follow.response-per-second", 5, "Body smoothing response rate.");
+        field("body-follow.pause-during-pose", true, Boolean.class, "Keep the body still while a manual pose is active; the head may still look around.");
         field("idle.enabled", true, Boolean.class, "Enable the concurrent ambient animation layers.");
         for (String state : List.of("idle", "walk", "jump", "death"))
             field("idle.default-states." + state, state, String.class, "Model animation used for the default " + state + " state.");
@@ -113,6 +120,12 @@ public class FancyNpcsModelConfigImpl {
                         names("idle.random-gestures.animations"), min, max));
         double yawLimit = value("head-tracking.max-yaw-degrees", .1, 150, 65);
         double pitchLimit = value("head-tracking.max-pitch-degrees", .1, 89, 35);
+        double bodyStart = value("body-follow.start-angle-degrees", .1, yawLimit, Math.min(35, yawLimit));
+        var body = new SmoothHeadTracking.BodyFollow(bool("body-follow.enabled"), bodyStart,
+                value("body-follow.stop-angle-degrees", 0, Math.max(0, bodyStart - .1), Math.min(2, bodyStart * .5)),
+                value("body-follow.delay-seconds", 0, 30, .3),
+                value("body-follow.yaw-speed-degrees-per-second", 1, 1440, 90),
+                value("body-follow.response-per-second", .1, 100, 5), bool("body-follow.pause-during-pose"));
         var head = new SmoothHeadTracking.Config(
                 yawLimit, pitchLimit,
                 value("head-tracking.yaw-speed-degrees-per-second", 1, 1440, 180),
@@ -122,7 +135,7 @@ public class FancyNpcsModelConfigImpl {
                 value("head-tracking.switch-distance-ratio", .1, 1, .8),
                 value("head-tracking.minimum-target-hold-seconds", 0, 30, .75),
                 value("head-tracking.lost-target-grace-seconds", 0, 10, .2),
-                value("head-tracking.exit-range-multiplier", 1, 3, 1.15));
+                value("head-tracking.exit-range-multiplier", 1, 3, 1.15), body);
         motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation);
     }
 
