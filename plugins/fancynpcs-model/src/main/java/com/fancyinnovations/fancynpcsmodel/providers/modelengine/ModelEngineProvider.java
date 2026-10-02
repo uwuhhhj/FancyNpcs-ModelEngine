@@ -4,9 +4,10 @@ import com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin;
 import com.fancyinnovations.fancynpcsmodel.providers.ModelProvider;
 import com.fancyinnovations.fancynpcsmodel.utils.NpcEntityAccess;
 import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.animation.BlueprintAnimation;
 import com.ticxo.modelengine.api.animation.handler.AnimationHandler;
-import com.ticxo.modelengine.api.animation.property.SimpleProperty;
+import com.ticxo.modelengine.api.animation.handler.IStateMachineHandler;
+import com.ticxo.modelengine.api.utils.data.io.SavedData;
+import com.fancyinnovations.fancynpcsmodel.config.FancyNpcsModelConfigImpl;
 import com.ticxo.modelengine.api.entity.BaseEntity;
 import com.ticxo.modelengine.api.entity.Dummy;
 import com.ticxo.modelengine.api.entity.Hitbox;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -129,12 +131,22 @@ public final class ModelEngineProvider implements ModelProvider {
             // not save a second independently owned NPC across server restarts.
             modeled = ModelEngineAPI.createModeledEntity(dummy, entity -> entity.setSaved(false));
             if (modeled == null) throw new IllegalStateException("ModelEngine rejected the dummy entity");
-            model = ModelEngineAPI.createActiveModel(blueprint);
+            model = ModelEngineAPI.createActiveModel(blueprint, null, active -> {
+                SavedData data = new SavedData();
+                data.putString("id", "state_machine");
+                AnimationHandler handler = ModelEngineAPI.getAnimationHandlerRegistry().createHandler(active, data);
+                if (!(handler instanceof IStateMachineHandler))
+                    throw new IllegalStateException("ModelEngine state_machine animation handler is unavailable");
+                return handler;
+            });
             if (model == null) throw new IllegalStateException("ModelEngine rejected model " + modelName);
             double scale = scale(npc);
             model.setScale(scale);
             model.setHitboxScale(scale);
             modeled.addModel(model, true);
+            // Fixed packet NPCs have no AI body rotation. Do not let ME's body
+            // controller pull the body after the head and fight the NPC yaw.
+            modeled.setModelRotationLocked(true);
             if (modeled.getModel(blueprint.getName()).orElse(null) != model) {
                 throw new IllegalStateException("ModelEngine model attachment was cancelled");
             }
@@ -195,21 +207,7 @@ public final class ModelEngineProvider implements ModelProvider {
         requireMainThread();
         if (closed || appliedModels.get(applied.npc.getData().getId()) != applied
                 || !isCurrentNpc(applied.npc) || !healthy(applied)) return false;
-        BlueprintAnimation clip = applied.model.getBlueprint().getAnimations().get(animation);
-        if (clip == null) return false;
-        SimpleProperty property = new SimpleProperty(applied.model, clip, 0, 0, 1);
-        property.setForceLoopMode(loop ? BlueprintAnimation.LoopMode.LOOP : BlueprintAnimation.LoopMode.ONCE);
-        AnimationHandler handler = applied.model.getAnimationHandler();
-        if (!handler.playAnimation(property, true)) return false;
-        // Different manual loop names coexist in ME's priority handler. Stop
-        // only our previous property, and never stop a same-name replacement.
-        if (applied.lastRequestedAnimation != null && !applied.lastRequestedAnimation.equals(animation)
-                && handler.getAnimation(applied.lastRequestedAnimation) == applied.lastRequestedProperty) {
-            handler.forceStopAnimation(applied.lastRequestedAnimation);
-        }
-        applied.lastRequestedAnimation = animation;
-        applied.lastRequestedProperty = property;
-        return true;
+        return applied.animations.play(animation, loop);
     }
 
     @Override public Collection<String> getAnimationNames(Npc npc) {
@@ -294,6 +292,10 @@ public final class ModelEngineProvider implements ModelProvider {
     private void synchronize(AppliedModel applied) {
         requireMainThread();
         Location target = applied.npc.getData().getLocation().clone();
+        FancyNpcsModelConfigImpl.MotionSettings settings = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings();
+        applied.headTracking.reconfigure(settings.headTracking());
+        applied.animations.reconfigure(settings.animations());
+        applied.animations.update(Bukkit.getCurrentTick());
         double scale = scale(applied.npc);
         if (Double.compare(scale, applied.scale) != 0) {
             applied.model.setScale(scale);
@@ -303,27 +305,31 @@ public final class ModelEngineProvider implements ModelProvider {
         // ME only writes collision bounds to BukkitEntityData, never Dummy.
         // Match R4.1.1's square INTERACTION entity: max(width, depth) * X
         // hitbox scale. setHitbox alone does not rebuild Dummy's cached box;
-        // syncLocation must follow it, including when scale changes in place.
+        // setLocation rebuilds the cached bounds without resetting rotations.
         Hitbox mainHitbox = applied.model.getBlueprint().getMainHitbox();
         double width = (float) mainHitbox.getMaxWidth() * applied.model.getHitboxScale().x();
         double height = (float) mainHitbox.getHeight() * applied.model.getHitboxScale().y();
         double eyeHeight = (float) mainHitbox.getEyeHeight() * applied.model.getScale().y();
         applied.dummy.setHitbox(new Hitbox(width, height, width, eyeHeight));
-        applied.dummy.syncLocation(target);
+        applied.dummy.setLocation(target);
         applied.location = target;
         Set<UUID> desired = new HashSet<>();
-        Player nearest = null;
-        double nearestDistance = Double.POSITIVE_INFINITY;
+        List<SmoothHeadTracking.Candidate> candidates = new ArrayList<>();
         int turnDistance = applied.npc.getData().getTurnToPlayerDistance();
         if (turnDistance < 0) turnDistance = FancyNpcsPlugin.get().getFancyNpcConfig().getTurnToPlayerDistance();
+        boolean track = settings.headTrackingEnabled() && applied.npc.getData().isTurnToPlayer()
+                && !applied.animations.isHeadTrackingPaused();
+        Location head = target.clone().add(0, eyeHeight, 0);
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!visibleTo(applied.npc, player)) continue;
             desired.add(player.getUniqueId());
             double distance = player.getLocation().distanceSquared(target);
-            if (applied.npc.getData().isTurnToPlayer() && distance < (double) turnDistance * turnDistance
-                    && distance < nearestDistance) {
-                nearest = player;
-                nearestDistance = distance;
+            if (track) {
+                Vector direction = player.getEyeLocation().toVector().subtract(head.toVector());
+                if (direction.lengthSquared() > .000001) {
+                    Location facing = head.clone().setDirection(direction);
+                    candidates.add(new SmoothHeadTracking.Candidate(player.getUniqueId(), distance, facing.getYaw(), facing.getPitch()));
+                }
             }
         }
         for (UUID previous : Set.copyOf(applied.viewers)) {
@@ -334,15 +340,11 @@ public final class ModelEngineProvider implements ModelProvider {
         }
         applied.viewers.clear();
         applied.viewers.addAll(desired);
-        if (nearest != null) {
-            Location head = target.clone().add(0, 1.62 * scale, 0);
-            Vector direction = nearest.getEyeLocation().toVector().subtract(head.toVector());
-            if (direction.lengthSquared() > 0.000001) {
-                head.setDirection(direction);
-                applied.dummy.setYHeadRot(head.getYaw());
-                applied.dummy.setXHeadRot(head.getPitch());
-            }
-        }
+        SmoothHeadTracking.Pose facing = applied.headTracking.tick(target.getYaw(), target.getPitch(),
+                track ? Math.max(0, turnDistance) : 0, candidates, .05);
+        applied.modeled.setYBodyRot((float) facing.bodyYaw());
+        applied.modeled.setYHeadRot((float) facing.headYaw());
+        applied.modeled.setXHeadRot((float) facing.headPitch());
         hideNpc(applied.npc);
     }
 
@@ -386,7 +388,11 @@ public final class ModelEngineProvider implements ModelProvider {
         requireMainThread();
         appliedModels.remove(applied.npc.getData().getId(), applied);
         dummyToNpc.remove(applied.dummy.getUUID(), applied);
-        try { cleanup(applied.dummy, applied.modeled, applied.model, applied.npc); }
+        try {
+            try { applied.animations.close(); }
+            catch (RuntimeException | LinkageError failure) { logFailure("Failed to stop ModelEngine NPC animations", applied.npc, failure); }
+            cleanup(applied.dummy, applied.modeled, applied.model, applied.npc);
+        }
         finally { if (restoreVisibility) restoreNpcVisibility(applied.npc); }
     }
 
@@ -524,8 +530,8 @@ public final class ModelEngineProvider implements ModelProvider {
         Location location;
         double scale;
         String failure = "";
-        String lastRequestedAnimation;
-        SimpleProperty lastRequestedProperty;
+        final SmoothHeadTracking headTracking;
+        final ModelEngineAnimationController animations;
         AppliedModel(Npc npc, String name, Dummy<Npc> dummy, ModeledEntity modeled, ActiveModel model, Location location, double scale) {
             this.npc = npc;
             this.modelName = name;
@@ -535,6 +541,10 @@ public final class ModelEngineProvider implements ModelProvider {
             this.animationNames = model.getBlueprint().getAnimations().keySet().stream().sorted().toList();
             this.location = location;
             this.scale = scale;
+            FancyNpcsModelConfigImpl.MotionSettings settings = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings();
+            this.headTracking = new SmoothHeadTracking(settings.headTracking());
+            this.headTracking.reset(location.getYaw(), location.getPitch());
+            this.animations = new ModelEngineAnimationController(model, settings.animations());
         }
     }
 }

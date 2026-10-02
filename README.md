@@ -1,10 +1,12 @@
 # FancyNpcs-ModelEngine
 
-为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.2.1-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
+为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.0-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
 
 基于官方稳定版 [FancyNpcs 2.12.1](https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1)，源码基线为 [`d71e17d5`](https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465)，模型扩展参考上游 [PR #315](https://github.com/FancyInnovations/FancyPlugins/pull/315)。这是独立维护的非官方定制版，版本号为本项目递增。
 
-主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。本次构建、8 项单元测试及无玩家服务端生命周期/重启持久化验证通过，环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**。26.x、Folia 的 ME 集成，以及实际玩家点击、资源包显示和多人可见性仍需验证，详见 [validation.json](validation.json)。
+主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。验证环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**；26.x 的 ME 集成未验证，本 addon 不支持 Folia。
+
+本版构建和 **29 项单元测试**通过；真实 ME 无玩家运行检查覆盖身体转向锁定、三个微动作层持续播放、手动动作/姿态切换、待机恢复、配置重载仅清理本插件动画、重启后自动恢复模型与微动作，以及删除时释放模型。头部平滑和目标切换由单元测试覆盖，完整记录见 [validation.json](validation.json)。实际玩家观看/点击、资源包显示和多人可见性仍需验证。
 
 ## 安装与使用
 
@@ -13,6 +15,8 @@
 1. 停服，移出旧 FancyNpcs、FancyNpcsModel JAR，保留 `plugins/FancyNpcs/` 数据。
 2. 将两个新 JAR 放入服务器 `plugins/`，另行安装 ModelEngine R4.1.1。仅使用 ME 模型时不需要 BetterModel 或 MythicMobs。
 3. 用 Java 25 启动 Paper 1.21.11。模型继续放在 `plugins/ModelEngine/blueprints/npc/`；已有模型与 ME 资源包可以继续使用，首次导入才需 `/meg reload models` 并更新资源包。
+
+从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.0-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。
 
 原 FancyNpcs 命令保持可用。下面以 OP 创建测试 NPC；模型需要包含示例使用的 `wave`、`sit`、`idle` 动画：
 
@@ -32,6 +36,32 @@
 确保 FancyNpcs 的 `register_commands: true`。模型设置需要 `fancynpcsmodel.command.npc.custom_model`；添加动作使用原 FancyNpcs 的 action 指令及对应动作权限。
 
 模型生命周期、缩放、位置、可见性和点击校验接入 FancyNpcs。ME 模型的朝向由观察者共享，原生 NPC 初次隐身同步前可能短暂闪现。
+
+### 自然待机与平滑看向玩家
+
+`1.3.0` 将身体朝向固定为 NPC 摆放朝向，头部平滑追踪玩家，减少身体与 ME 自动转向互相覆盖。启用追踪及设置范围：
+
+```text
+/npc turn_to_player test_npc true
+/npc turn_to_player_distance test_npc 8
+```
+
+待机保留 ME 默认 `idle`，并像酒狐 MM 配置一样同时循环 `ribbon_sway`、`tail_hair_sway`、`blink`；模型缺少的动画会跳过。普通手势、姿态及微动作分层播放：一次动作结束后恢复待机，循环姿态持续到下一次手动切换，`/npc play_animation test_npc idle --loop` 恢复自动待机。随机 `smile`/`nod` 默认关闭，避免频繁全身动作。
+
+修改 `plugins/FancyNpcsModel/config.yml` 后执行 `/fancynpcsmodel config reload`。完整默认配置见 [config.yml](plugins/fancynpcs-model/src/main/resources/config.yml)，所有以下参数位于 `settings.modelengine`：
+
+| 参数 | 默认值及用途 |
+| --- | --- |
+| `idle.enabled` / `idle.loop-animations` | `true` / 三个微动作；设 `false` 关闭自动微动作与随机手势，动画名称可按模型修改。 |
+| `idle.default-states` | `idle/walk/jump/death`；映射 ME 默认状态。 |
+| `idle.random-gestures` | `enabled: false`；启用后候选 `smile/nod`，间隔 160~400 tick（8~20 秒）。 |
+| `animations.blend-in-seconds` / `blend-out-seconds` | `0.05` 秒，与 MM 的 1 tick 过渡一致；可适当增大以柔化切换。 |
+| `animations.speed` / `gesture-speed` | `1.0` / `1.35`；姿态正常速度，普通手势更快响应。 |
+| `head-tracking.max-yaw-degrees` / `max-pitch-degrees` | `65` / `35` 度，限制头部偏转；身体不会跟随玩家转动。 |
+| `head-tracking.yaw-speed-degrees-per-second` / `pitch-speed-degrees-per-second` / `response-per-second` | `180` / `120` / `8`；降低速度或响应系数会转得更柔和、更慢。 |
+| `head-tracking.switch-distance-ratio` / `minimum-target-hold-seconds` | `0.8` / `0.75` 秒；新玩家明显更近后才切换，减少来回看人。 |
+
+`head-tracking.enabled: false` 可关闭头部追踪；死区、目标离开缓冲和范围边界参数见完整配置。`sleep/nod/talk/wave` 默认暂停叠加追踪，让动作自身控制头部；姿态期间默认暂停随机手势。
 
 ## 源码构建
 

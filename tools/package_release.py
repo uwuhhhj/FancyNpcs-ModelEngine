@@ -30,12 +30,12 @@ from pathlib import Path
 
 
 CORE_VERSION = "2.12.2-simmc-me.1"
-ADDON_VERSION = "1.2.1-simmc-me.1"
+ADDON_VERSION = "1.3.0-simmc-me.1"
 API_VERSIONS = {"FancyNpcs": "1.19", "FancyNpcsModel": "1.21.11"}
 SOURCE_BASE_COMMIT = "d71e17d5aab44218b45c156af6bfa8c9cdd57465"
 UPSTREAM_VERSION = "2.12.1"
 BASELINE_NMS_VERSIONS = ("1_21_5", "1_21_6", "1_21_9", "1_21_11", "26_1_2", "26_2", "26_3")
-RELEASE_NAME = f"FancyNpcs-{CORE_VERSION}"
+RELEASE_NAME = f"FancyNpcs-ModelEngine-{ADDON_VERSION}"
 EXCLUDED_DIRS = frozenset({
     ".git", ".gradle", ".idea", ".vscode", ".cache", ".next", ".nuxt",
     ".venv", "venv", "node_modules", "build", "target", "dist", "out", "deps", "run", "logs",

@@ -1,0 +1,69 @@
+# FancyNpcsModel 配置参考。
+# 实际文件位于 plugins/FancyNpcsModel/config.yml；启动/重载会自动补齐缺少的字段。
+# 修改后执行 /fancynpcsmodel config reload，无需删除 NPC 数据或重新导入模型。
+settings:
+  logging:
+    level: INFO
+    version_notification: false
+  language: default
+  modelengine:
+    head-tracking:
+      # 还需对 NPC 启用 /npc turn_to_player <npc> true；追踪范围沿用 FancyNpcs 设置。
+      enabled: true
+      # 相对于 NPC 身体朝向的头部旋转限制，单位：度。
+      max-yaw-degrees: 65.0
+      max-pitch-degrees: 35.0
+      # 每秒最大转动角度；默认每 tick 最多水平 9 度、垂直 6 度。
+      yaw-speed-degrees-per-second: 180.0
+      pitch-speed-degrees-per-second: 120.0
+      # 平滑响应系数，越低越柔和、越高越快；微小角度差由死区忽略。
+      response-per-second: 8.0
+      dead-zone-degrees: 0.25
+      # 新玩家至少比当前目标近 20%，且已保持当前目标 0.75 秒后才切换。
+      switch-distance-ratio: 0.8
+      minimum-target-hold-seconds: 0.75
+      lost-target-grace-seconds: 0.2
+      # 当前目标可在基础追踪范围外额外停留 15%，减少边界抖动。
+      exit-range-multiplier: 1.15
+    idle:
+      # 自动循环微动作；设为 false 可关闭本插件的自动微动作及随机手势。
+      enabled: true
+      default-states:
+        idle: idle
+        walk: walk
+        jump: jump
+        death: death
+      # 按列表顺序使用优先级 1、2、3……；模型没有的动画会跳过。
+      # 对应酒狐 MM 配置：飘带、尾发、眨眼同时 LOOP。
+      loop-animations:
+        - ribbon_sway
+        - tail_hair_sway
+        - blink
+      random-gestures:
+        # 默认关闭；启用后只从模型已有的候选动画中选择。
+        enabled: false
+        animations:
+          - smile
+          - nod
+        # 20 tick = 1 秒；默认间隔 8~20 秒。
+        min-interval-ticks: 160
+        max-interval-ticks: 400
+    animations:
+      # 单位：秒。0.05 秒 = MM 的 li/lo 1 tick，切换时保持及时响应。
+      blend-in-seconds: 0.05
+      blend-out-seconds: 0.05
+      speed: 1.0
+      gesture-speed: 1.35
+      # 手动姿态优先级 5，普通手势优先级 4；姿态使用正常 speed。
+      pose-animations:
+        - crouch_idle
+        - sit
+        - sleep
+        - climb_idle
+      # 这些动作播放期间由动画控制头部，暂时停止叠加玩家追踪。
+      head-tracking-pause-animations:
+        - sleep
+        - nod
+        - talk
+        - wave
+      pause-random-gestures-during-pose: true
