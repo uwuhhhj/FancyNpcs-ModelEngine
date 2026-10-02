@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "generated_utc": "2026-10-02T17:06:14.623225+00:00",
+  "target": {
+    "server": "Paper 1.21.11 build 132",
+    "java": "Temurin 25.0.3+9",
+    "modelengine": "R4.1.1",
+    "folia": false
+  },
+  "authors": [
+    "OliverSchlueter",
+    "Loliiiico"
+  ],
+  "source_base_commit": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+  "upstream_release": {
+    "version": "2.12.1",
+    "modrinth_id": "LigxTtVw",
+    "date_published": "2026-09-21T19:04:43.307644Z",
+    "jar_sha256": "a3464906d6c797781a29831706ebd5cdfa6d076fa094da2f0e7574b436fb9532"
+  },
+  "pr315_reference_commit": "b5c68e6a42f2c6d57d98ba7764382ac696d38be2",
+  "build": {
+    "result": "passed",
+    "gradle": "9.7.1",
+    "tasks": [
+      ":plugins:fancynpcs-v2:shadowJar",
+      ":plugins:fancynpcs-model:shadowJar",
+      ":plugins:fancynpcs-model:test"
+    ],
+    "nms_implementation_reuse": {
+      "classes": 432,
+      "npc_modules": 7,
+      "packet_modules": 7,
+      "all_classes_match_official_stable_jar": true,
+      "compile_api": "Paper 1.21.11",
+      "default_source_build_modules_retained": true
+    },
+    "host_workarounds": [
+      "Short ASCII jdk.net.unixdomain.tmpdir",
+      "Optional ASCII testClasspathDir for Windows launcher argument-file encoding"
+    ]
+  },
+  "unit_tests": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "unprefixedNamesKeepBetterModelPriorityWhenBothHaveTheModel()",
+      "singleProviderSuggestionsRemainValidAfterFancyNpcsReloadsSavedAttributes()",
+      "removeAttemptsEveryProviderEvenIfOneCleanupFails()",
+      "betterModelOnlySuggestionsIncludeBothExplicitPrefixes()",
+      "malformedAndUnknownProviderPrefixesNeverFallBackToAnotherProvider()",
+      "providerViewCannotBeMutatedByCallers()",
+      "shutdownClearsRegistryAndClosesRemainingProvidersAfterOneFailure()",
+      "allDocumentedPrefixesResolveWithOnlyModelEngineInstalled()"
+    ]
+  },
+  "retained_nms_versions": [
+    "1_21_5",
+    "1_21_6",
+    "1_21_9",
+    "1_21_11",
+    "26_1_2",
+    "26_2",
+    "26_3"
+  ],
+  "not_verified": [
+    "Client resource-pack rendering and motion quality",
+    "Actual player right/left-click packet execution and dialog delivery",
+    "Multiple players' visibility/permission changes",
+    "Live cross-world NPC movement",
+    "BetterModel optional provider runtime",
+    "26.x runtime (upstream core implementations retained)",
+    "Folia model integration (unsupported; upstream core Folia support retained)"
+  ],
+  "known_limits": [
+    "A single ME dummy shares head direction among observers.",
+    "Native packet NPC appearance can flash briefly before next-tick invisibility synchronization.",
+    "Model animations do not grant NPC flight or crawling movement."
+  ],
+  "external_inputs": [
+    {
+      "filename": "ModelEngine-R4.1.1.jar",
+      "sha256": "6e03ec5b8a5b4efbc63ffec7daa8a34bd272dd2c2c3b29dce8174997b0422cc6"
+    },
+    {
+      "filename": "bettermodel-3.5.0-paper.jar",
+      "sha256": "0f983569b45e82f657fd6267f68115cc679fa066f0e8eec2ce328596dcb57ed6"
+    }
+  ],
+  "artifacts": [
+    {
+      "filename": "FancyNpcs-2.12.2-simmc-me.1.jar",
+      "bytes": 6729638,
+      "sha256": "0f48c706429bd5280ec6e646d35dd91fb6fc913f18d87863893a5df20c2633df"
+    },
+    {
+      "filename": "FancyNpcsModel-1.2.1-simmc-me.1.jar",
+      "bytes": 570652,
+      "sha256": "e72852268272d76078c14c2286b3126669b1bc72119e94896ef37eec35a0f3ef"
+    }
+  ],
+  "commercial_dependencies_bundled": false,
+  "runtime": {
+    "result": "passed",
+    "binding": "127.0.0.1:25579",
+    "online_players": 0,
+    "lifecycle_checks": [
+      "[01:58:47] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=d1a37a32-b936-4948-825c-c23b303edf1e saveToFile=false, zero observers",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=d0f4afaf-a0e8-4458-9a04-f2156cb51741",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=animation wave loop accepted by ME on main thread",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.5 box=0.30000001192092896x0.875x0.30000001192092896",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=animation-switch wave -> sit; previous loop removed",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
+      "[01:58:48] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] SUCCESS headless lifecycle passed; client visuals/right-click packets remain manual checks"
+    ],
+    "persistence_checks": [
+      "[02:00:06] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS_PERSIST_WRITE id=2a589d64-c72b-4efd-9a33-664c748e410d real manager save; fixture remains for next boot; addon shutdown owns ME cleanup",
+      "[02:00:53] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS stage=persist-auto-restore Existing fixture recovered its ME model without a probe apply/create call",
+      "[02:00:53] [Server thread/INFO]: [FancyNpcsMESmokeProbe] [SMOKE_PROBE] PASS_PERSIST_READ automatic model restoration and record/model deletion passed"
+    ],
+    "normal_shutdown": "passed",
+    "environment_notes": [
+      "The isolated flat-world settings emit a vanilla generator-settings warning.",
+      "Upstream update/development/MineSkin notices may appear.",
+      "The upstream FancyAnalytics SDK emitted a remote event response error during the first initialization; NPC integration remained enabled."
+    ]
+  },
+  "source_archive_metadata": {
+    "result": "passed",
+    "scope": "Archive configuration and generated resources only; no Java/NMS compilation",
+    "copied_source_files": 893,
+    "archive_has_git_directory": false,
+    "source_commit_fallback": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+    "sourceCommitHash_override_supplied": false,
+    "gradle": "9.7.1",
+    "offline": true,
+    "process_exit_code": 0,
+    "tasks": [
+      ":plugins:fancynpcs-v2:processResources",
+      ":plugins:fancynpcs-model:processResources"
+    ],
+    "flags": {
+      "paperApiVersion": "1.21.11-R0.1-SNAPSHOT",
+      "upstreamNmsJar": "FancyNpcs-2.12.1-upstream-nms.jar",
+      "modelEngineJar": "ModelEngine-R4.1.1.jar",
+      "betterModelJar": "bettermodel-3.5.0-paper.jar"
+    },
+    "resources": [
+      {
+        "module": "fancynpcs-v2",
+        "version": "2.12.2-simmc-me.1",
+        "commit_hash": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+        "sha256": "e29492f9a112e668d7fee3c30ad02934dbf587d0b53f605d1cd7637d2ff3da87"
+      },
+      {
+        "module": "fancynpcs-model",
+        "version": "1.2.1-simmc-me.1",
+        "commit_hash": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+        "sha256": "24ed94d85258d15e5cbaceae883d9ebf668a6bbcaf92f8f0da5b5eb2c333ca7e"
+      }
+    ]
+  },
+  "upstream_core_dispatch_sources_unchanged": [
+    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/FancyNpcs.java",
+    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/AttributeManagerImpl.java",
+    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/listeners/PlayerUseUnknownEntityListener.java",
+    "libraries/packets/src/main/java/de/oliver/fancysitula/factories/PacketFactory.java",
+    "libraries/packets/src/main/java/de/oliver/fancysitula/factories/PacketListenerFactory.java"
+  ],
+  "publication_note": "Local machine paths and runtime files are excluded from this public report.",
+  "repository_preparation": {
+    "checked_utc": "2026-10-02T17:15:32.319682+00:00",
+    "layout": "Standalone Gradle project at repository root",
+    "build_result": "passed",
+    "unit_tests": 8,
+    "test_timestamp_utc": "2026-10-02T17:11:08.840Z",
+    "binary_sha256_matches_runtime_tested_release": true,
+    "java_behavior_changed": false,
+    "public_report_contains_local_machine_paths": false
+  }
+}

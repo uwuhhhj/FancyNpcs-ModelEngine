@@ -1,0 +1,1 @@
+* Fixed plugin not starting on 26.3

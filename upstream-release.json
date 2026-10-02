@@ -1,0 +1,46 @@
+{
+  "game_versions": [
+    "1.21.6",
+    "1.21.7",
+    "1.21.8",
+    "1.21.9",
+    "1.21.10",
+    "1.21.11",
+    "26.1.2",
+    "26.2",
+    "26.3"
+  ],
+  "loaders": [
+    "folia",
+    "paper"
+  ],
+  "environment": "unknown",
+  "id": "LigxTtVw",
+  "project_id": "EeyAn23L",
+  "author_id": "YADN8hKN",
+  "featured": true,
+  "name": "2.12.1",
+  "version_number": "2.12.1",
+  "changelog": "* Fixed plugin not starting on 26.3",
+  "changelog_url": null,
+  "date_published": "2026-09-21T19:04:43.307644Z",
+  "downloads": 7415,
+  "version_type": "release",
+  "status": "listed",
+  "requested_status": null,
+  "files": [
+    {
+      "id": "nxNYtSY5",
+      "hashes": {
+        "sha512": "a370600889f7c08058fc0a7ead3549382efa6e17d3f95f7224822921e3899260d51ad6fe0fb3fe36fa4f61903698de27d1e4ce9804e9ee716733b55f5251ea07",
+        "sha1": "7b25991164877799301c1fd6d07a0337136c3869"
+      },
+      "url": "https://cdn.modrinth.com/data/EeyAn23L/versions/LigxTtVw/FancyNpcs-2.12.1.jar",
+      "filename": "FancyNpcs-2.12.1.jar",
+      "primary": true,
+      "size": 6754124,
+      "file_type": null
+    }
+  ],
+  "dependencies": []
+}

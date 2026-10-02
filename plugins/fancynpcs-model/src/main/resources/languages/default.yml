@@ -1,0 +1,26 @@
+language_name: default
+messages:
+  common:
+    model_not_found: "{errorColor}Could not find model with name {primaryColor}{model}{secondaryColor}."
+  commands:
+    fancynpcsmodel:
+      version:
+        current_version: "You are running FancyNpcsModel {primaryColor}v{version}{secondaryColor}."
+        version_outdated: "You are running an outdated version of FancyNpcsModel. Please update to the latest version {primaryColor}v{latestVersion}{secondaryColor}({downloadURL})."
+      config:
+        reload:
+          confirmation: "{warningColor}Are you sure you want to reload the configuration? This will apply any changes made to the config file."
+          success: "Configuration reloaded successfully."
+          cancelled: "Configuration reload cancelled."
+        show:
+          settings_header: "FancyNpcsModel settings:"
+          experimental_header: "FancyNpcsModel experimental features:"
+          entry: "{secondaryColor} - {path}: {primaryColor}{value} {secondaryColor}(default: {default})"
+    npc:
+      custom_model:
+        applied: "Custom model {primaryColor}{model}{secondaryColor} ({primaryColor}{provider}{secondaryColor}) applied to NPC {primaryColor}{npc}{secondaryColor}."
+        removed: "Custom model removed from NPC {primaryColor}{npc}{secondaryColor}."
+      play_animation:
+        no_model_assigned: "{errorColor}NPC {primaryColor}{npc}{secondaryColor} does not have a custom model assigned."
+        failed: "{errorColor}Failed to play animation {primaryColor}{animation}{errorColor} on NPC {primaryColor}{npc}{secondaryColor}."
+        playing: "Playing animation {primaryColor}{animation}{secondaryColor} on NPC {primaryColor}{npc}{secondaryColor}."

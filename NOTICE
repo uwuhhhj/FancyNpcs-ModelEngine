@@ -1,0 +1,55 @@
+FancyNpcs-ModelEngine — unofficial modified distribution
+https://github.com/uwuhhhj/FancyNpcs-ModelEngine
+
+Distribution versions:
+  FancyNpcs 2.12.2-simmc-me.1
+  FancyNpcsModel 1.2.1-simmc-me.1
+Plugin author credits: OliverSchlueter, Loliiiico.
+Local modifications and integration: Loliiiico.
+Copyright (c) 2026 Loliiiico for local modifications.
+
+Upstream project: FancyInnovations/FancyPlugins
+https://github.com/FancyInnovations/FancyPlugins
+
+FancyNpcs source base: official stable 2.12.1, released September 21, 2026.
+  d71e17d5aab44218b45c156af6bfa8c9cdd57465
+  https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465
+  https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1
+These local version numbers identify this project's modified distribution,
+not releases published or endorsed by FancyInnovations.
+
+FancyNpcsModel integration reference: upstream PR #315
+  b5c68e6a42f2c6d57d98ba7764382ac696d38be2
+  https://github.com/FancyInnovations/FancyPlugins/pull/315
+  https://github.com/FancyInnovations/FancyPlugins/tree/b5c68e6a42f2c6d57d98ba7764382ac696d38be2
+
+Upstream license: MIT. Copyright (c) 2025 Oliver Schlüter.
+The original copyright and complete MIT license are retained in LICENSE.
+Local source modifications are distributed under the same MIT license.
+
+Changes adapt the addon to the stable FancyNpcs 2.12.1 source base and
+ModelEngine R4.1.1,
+including model lifecycle, visibility, scale, interaction and persistence
+integration, and preserve the BetterModel provider.
+
+Validation target: Paper 1.21.11, Java 25, ModelEngine R4.1.1.
+The FancyNpcs core retains upstream multi-version implementations. The
+repository retains all 7 NPC and 7 packet NMS source modules, including 26.x.
+26.x and Folia ModelEngine integration are not claimed as validated.
+Player clicks, resource-pack visuals and multi-player visibility remain
+manual checks. See validation.json for the exact verification scope.
+
+Optional upstreamNmsJar builds reuse 432 unchanged implementation classes
+from the official MIT-licensed FancyNpcs 2.12.1 JAR. The extraction tool
+tools/extract_upstream_nms.py and pinned upstream-release.json verify the
+official input and preserve original class bytes. Core, APIs, loader and
+plugin metadata are rebuilt from local source. Omitting this property
+compiles all retained source modules. SOURCE_COMMIT preserves the source
+baseline for no-.git archives; sourceCommitHash can explicitly override
+generated build metadata.
+
+ModelEngine and BetterModel are external dependencies used for compilation
+and installed separately at runtime. Their JARs, licenses and rights are not
+redistributed or granted by this repository or its release archives.
+Bundled dependency license notices in built plugin JARs remain intact;
+this NOTICE does not relicense those dependencies.

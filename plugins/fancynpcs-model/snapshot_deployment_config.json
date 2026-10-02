@@ -1,0 +1,37 @@
+{
+  "project_name": "FancyNpcsModel",
+  "plugin_jar_path": "/plugins/fancynpcs-model/build/libs/FancyNpcsModel-%VERSION%.jar",
+  "changelog_path": "/plugins/fancynpcs-model/CHANGELOG-SNAPSHOT.md",
+  "version_path": "/plugins/fancynpcs-model/VERSION",
+  "fancyspaces": {
+    "space_id": "5XepASJZ",
+    "platform": "paper",
+    "channel": "alpha",
+    "supported_versions": [
+      "26.2",
+      "26.3"
+    ]
+  },
+  "modrinth": {
+    "project_id": "E2QZdSBL",
+    "supported_versions": [
+      "26.2",
+      "26.3"
+    ],
+    "channel": "alpha",
+    "loaders": [
+      "paper",
+      "folia"
+    ],
+    "featured": false
+  },
+  "hangar": {
+    "author": "oliver",
+    "project_id": "FancyNpcsModel",
+    "supported_versions": [
+      "26.2",
+      "26.3"
+    ],
+    "channel": "Alpha"
+  }
+}

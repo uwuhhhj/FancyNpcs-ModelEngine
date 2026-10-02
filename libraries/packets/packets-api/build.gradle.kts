@@ -1,0 +1,30 @@
+plugins {
+    id("java-library")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("de.oliver.FancyAnalytics:logger:0.0.10")
+    compileOnly(project(":libraries:common"))
+}
+
+tasks {
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    javadoc {
+        options.encoding = Charsets.UTF_8.name()
+    }
+
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+        options.release = 25
+
+    }
+}

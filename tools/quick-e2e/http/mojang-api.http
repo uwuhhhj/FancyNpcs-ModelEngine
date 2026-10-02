@@ -1,0 +1,5 @@
+### Query player's UUID
+GET https://api.mojang.com/users/profiles/minecraft/OliverHD
+
+### Query player's UUID 2
+GET https://api.minecraftservices.com/minecraft/profile/lookup/name/OliverHD

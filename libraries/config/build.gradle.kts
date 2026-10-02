@@ -1,0 +1,123 @@
+plugins {
+    id("java")
+    id("maven-publish")
+    id("com.github.johnrengelman.shadow")
+}
+
+group = "de.oliver"
+description = "Library for plugin configuration"
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:${providers.gradleProperty("paperApiVersion").getOrElse("26.2.build.+")}")
+    compileOnly("de.oliver.FancyAnalytics:logger:0.0.10")
+    compileOnly("org.jetbrains:annotations:26.1.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.0")
+    testImplementation("org.junit.platform:junit-platform-console-standalone:6.1.0")
+}
+
+tasks {
+    publishing {
+        repositories {
+            maven {
+                name = "fancyspacesReleases"
+                url = uri("https://maven.fancyspaces.net/fancyinnovations/releases")
+
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Authorization"
+                    value = "ApiKey " + providers
+                        .gradleProperty("fancyspacesApiKey")
+                        .orElse(
+                            providers
+                                .environmentVariable("FANCYSPACES_API_KEY")
+                                .orElse("")
+                        )
+                        .get()
+                }
+
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+
+            maven {
+                name = "fancyspacesSnapshots"
+                url = uri("https://maven.fancyspaces.net/fancyinnovations/snapshots")
+
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Authorization"
+                    value = "ApiKey " + providers
+                        .gradleProperty("fancyspacesApiKey")
+                        .orElse(
+                            providers
+                                .environmentVariable("FANCYSPACES_API_KEY")
+                                .orElse("")
+                        )
+                        .get()
+                }
+
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+
+            maven {
+                name = "fancyinnovationsReleases"
+                url = uri("https://repo.fancyinnovations.com/releases")
+                credentials(PasswordCredentials::class)
+                authentication {
+                    isAllowInsecureProtocol = true
+                    create<BasicAuthentication>("basic")
+                }
+            }
+
+            maven {
+                name = "fancyinnovationsSnapshots"
+                url = uri("https://repo.fancyinnovations.com/snapshots")
+                credentials(PasswordCredentials::class)
+                authentication {
+                    isAllowInsecureProtocol = true
+                    create<BasicAuthentication>("basic")
+                }
+            }
+        }
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "de.oliver"
+                artifactId = "config"
+                version = getCFGVersion()
+                from(project.components["java"])
+            }
+        }
+    }
+
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+        options.release.set(25)
+    }
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    javadoc {
+        options.encoding = Charsets.UTF_8.name()
+    }
+    processResources {
+        filteringCharset = Charsets.UTF_8.name()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+fun getCFGVersion(): String {
+    return file("VERSION").readText()
+}

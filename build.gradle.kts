@@ -1,0 +1,27 @@
+plugins {
+    id("com.gradleup.shadow") version "9.6.1" apply false
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.23" apply false
+    id("xyz.jpenilla.run-paper") version "3.1.0" apply false
+    id("de.eldoria.plugin-yml.paper") version "0.9.0" apply false
+}
+
+allprojects {
+    group = "de.oliver"
+    description = "Minecraft plugins of FancyInnovations"
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven(url = "https://maven.fancyspaces.net/fancyinnovations/releases")
+        maven(url = "https://maven.fancyspaces.net/fancyinnovations/snapshots")
+        maven(url = "https://maven.fancyspaces.net/origami/releases")
+        maven(url = "https://repo.fancyinnovations.com/releases")
+        maven(url = "https://repo.fancyinnovations.com/snapshots")
+
+        maven(url = "https://repo.lushplugins.org/releases")
+        maven(url = "https://repo.papermc.io/repository/maven-public/")
+        maven(url = "https://artifactory.papermc.io/artifactory/releases/")
+//        maven(url = "https://jitpack.io")
+    }
+}

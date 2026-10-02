@@ -1,0 +1,11 @@
+### Get project list
+GET https://api.papermc.io/v2/projects/
+
+### Get version list of a project
+GET https://api.papermc.io/v2/projects/paper
+
+### Get build list of a version
+GET https://api.papermc.io/v2/projects/paper/versions/1.21.4
+
+### Download a build
+GET https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/211/downloads/paper-1.21.4-211.jar

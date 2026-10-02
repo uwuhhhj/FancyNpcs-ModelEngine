@@ -1,0 +1,131 @@
+plugins {
+    id("java-library")
+    id("maven-publish")
+    id("com.gradleup.shadow")
+}
+
+allprojects {
+    group = "de.oliver"
+    version = findProperty("fancysitulaVersion") as String
+    description = "Simple, lightweight and fast library for minecraft internals"
+}
+
+val upstreamNmsJar = providers.gradleProperty("upstreamNmsJar")
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:${providers.gradleProperty("paperApiVersion").getOrElse("26.2.build.+")}")
+
+    implementation(project(":libraries:packets:packets-api"))
+    if (upstreamNmsJar.isPresent) {
+        compileOnly(files(upstreamNmsJar.get()))
+    } else {
+    implementation(project(":libraries:packets:implementations:26_3"))
+    implementation(project(":libraries:packets:implementations:26_2"))
+    implementation(project(":libraries:packets:implementations:26_1_2"))
+    implementation(project(":libraries:packets:implementations:1_21_11"))
+    implementation(project(":libraries:packets:implementations:1_21_9"))
+    implementation(project(":libraries:packets:implementations:1_21_6"))
+    implementation(project(":libraries:packets:implementations:1_21_5"))
+    }
+    implementation("de.oliver.FancyAnalytics:logger:0.0.10")
+}
+
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        configurations = listOf(project.configurations["runtimeClasspath"])
+        dependencies {
+            include(dependency("de.oliver:.*"))
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "fancyspacesReleases"
+                url = uri("https://maven.fancyspaces.net/fancyinnovations/releases")
+
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Authorization"
+                    value = "ApiKey " + providers
+                        .gradleProperty("fancyspacesApiKey")
+                        .orElse(
+                            providers
+                                .environmentVariable("FANCYSPACES_API_KEY")
+                                .orElse("")
+                        )
+                        .get()
+                }
+
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+
+            maven {
+                name = "fancyspacesSnapshots"
+                url = uri("https://maven.fancyspaces.net/fancyinnovations/snapshots")
+
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Authorization"
+                    value = "ApiKey " + providers
+                        .gradleProperty("fancyspacesApiKey")
+                        .orElse(
+                            providers
+                                .environmentVariable("FANCYSPACES_API_KEY")
+                                .orElse("")
+                        )
+                        .get()
+                }
+
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+
+            maven {
+                name = "fancyinnovationsReleases"
+                url = uri("https://repo.fancyinnovations.com/releases")
+                credentials(PasswordCredentials::class)
+                authentication {
+                    isAllowInsecureProtocol = true
+                    create<BasicAuthentication>("basic")
+                }
+            }
+
+            maven {
+                name = "fancyinnovationsSnapshots"
+                url = uri("https://repo.fancyinnovations.com/snapshots")
+                credentials(PasswordCredentials::class)
+                authentication {
+                    isAllowInsecureProtocol = true
+                    create<BasicAuthentication>("basic")
+                }
+            }
+        }
+        publications {
+            create<MavenPublication>("shadow") {
+                groupId = "de.oliver"
+                version = findProperty("fancysitulaVersion") as String
+                artifact(shadowJar)
+            }
+        }
+    }
+
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+        options.release = 25
+    }
+
+    javadoc {
+        options.encoding = Charsets.UTF_8.name()
+    }
+
+    processResources {
+        filteringCharset = Charsets.UTF_8.name()
+    }
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}

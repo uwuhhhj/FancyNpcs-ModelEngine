@@ -1,0 +1,8 @@
+### Get version list of a project
+@project=fancyholograms
+GET https://api.modrinth.com/v2/project/{{project}}/version
+# download url is also included in the response
+
+### Get version info
+@version=rFLuWfOG
+GET https://api.modrinth.com/v2/project/{{project}}/version/{{version}}

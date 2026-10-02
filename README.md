@@ -1,0 +1,60 @@
+# FancyNpcs-ModelEngine
+
+为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.2.1-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
+
+基于官方稳定版 [FancyNpcs 2.12.1](https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1)，源码基线为 [`d71e17d5`](https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465)，模型扩展参考上游 [PR #315](https://github.com/FancyInnovations/FancyPlugins/pull/315)。这是独立维护的非官方定制版，版本号为本项目递增。
+
+主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。本次构建、8 项单元测试及无玩家服务端生命周期/重启持久化验证通过，环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**。26.x、Folia 的 ME 集成，以及实际玩家点击、资源包显示和多人可见性仍需验证，详见 [validation.json](validation.json)。
+
+## 安装与使用
+
+从 [Releases](https://github.com/uwuhhhj/FancyNpcs-ModelEngine/releases) 下载两个插件 JAR 或安装 ZIP；同一发布还提供源码 ZIP、SHA-256 校验和与打包报告。
+
+1. 停服，移出旧 FancyNpcs、FancyNpcsModel JAR，保留 `plugins/FancyNpcs/` 数据。
+2. 将两个新 JAR 放入服务器 `plugins/`，另行安装 ModelEngine R4.1.1。仅使用 ME 模型时不需要 BetterModel 或 MythicMobs。
+3. 用 Java 25 启动 Paper 1.21.11。模型继续放在 `plugins/ModelEngine/blueprints/npc/`；已有模型与 ME 资源包可以继续使用，首次导入才需 `/meg reload models` 并更新资源包。
+
+原 FancyNpcs 命令保持可用。下面以 OP 创建测试 NPC；模型需要包含示例使用的 `wave`、`sit`、`idle` 动画：
+
+```text
+/npc create test_npc
+/npc type test_npc player
+/npc custom_model test_npc me:ysm_01_jk_npc
+/npc action test_npc RIGHT_CLICK add message 你好，我是测试NPC。
+/npc action test_npc RIGHT_CLICK add play_animation_once wave
+/npc play_animation test_npc sit --loop
+/npc play_animation test_npc idle --loop
+/npc scale test_npc 0.9
+```
+
+右键执行台词和动作；左键使用 `LEFT_CLICK`，任意点击使用 `ANY_CLICK`。动画支持 Tab 补全，`idle --loop` 可切回待机。移除模型用 `/npc custom_model test_npc @none`，删除用 `/npc remove test_npc`。模型动画本身不赋予飞行或爬行移动能力。
+
+确保 FancyNpcs 的 `register_commands: true`。模型设置需要 `fancynpcsmodel.command.npc.custom_model`；添加动作使用原 FancyNpcs 的 action 指令及对应动作权限。
+
+模型生命周期、缩放、位置、可见性和点击校验接入 FancyNpcs。ME 模型的朝向由观察者共享，原生 NPC 初次隐身同步前可能短暂闪现。
+
+## 源码构建
+
+Gradle 项目位于仓库根目录，包含全部相关 NMS 分支及共享库。使用 **JDK 25** 运行 Gradle；完整构建会下载各版本 Paper dev-bundle，其他 Java 工具链按模块/dev-bundle 的要求配置。ModelEngine 与 BetterModel JAR 是外部编译依赖，不随仓库或发行包分发。准备合法取得的 **ModelEngine R4.1.1** 和 **BetterModel 3.5.0** JAR，以绝对路径构建：
+
+```powershell
+./gradlew.bat :plugins:fancynpcs-v2:shadowJar :plugins:fancynpcs-model:test :plugins:fancynpcs-model:shadowJar '-PpaperApiVersion=1.21.11-R0.1-SNAPSHOT' '-PmodelEngineJar=C:/deps/ModelEngine-R4.1.1.jar' '-PbetterModelJar=C:/deps/bettermodel-3.5.0-paper.jar'
+```
+
+Linux/macOS 使用 `./gradlew`。也可将依赖放入仓库根目录的 `deps/`，文件名与上述示例一致。构建产物位于 `plugins/fancynpcs-v2/build/libs/` 和 `plugins/fancynpcs-model/build/libs/`。
+
+Git 检出使用当前 HEAD 生成元数据；不含 `.git` 的源码归档使用根目录 [SOURCE_COMMIT](SOURCE_COMMIT)。如需复现本次发布元数据，追加 `'-PsourceCommitHash=d71e17d5aab44218b45c156af6bfa8c9cdd57465'`；采用其他提交重新构建时，JAR 哈希会变化，应更新验证报告后再打包。
+
+默认构建完整源码。上述 `-PpaperApiVersion=1.21.11-R0.1-SNAPSHOT` 固定本次发布的核心 API；省略时采用上游默认 26.2 API。本次发布构建另使用可选 `-PupstreamNmsJar` 复用官方 2.12.1 JAR 中 **432 个字节保持不变的实现类（7 组 NPC + 7 组 packets）**；核心、API、加载器及插件元数据仍从本项目构建，全部 NMS 源码保留。官方下载地址与哈希记录在 [upstream-release.json](upstream-release.json)。取得对应官方 JAR 后，在仓库根目录使用 Python 3.11+ 提取：
+
+```powershell
+python tools/extract_upstream_nms.py --upstream-jar C:/deps/FancyNpcs-2.12.1.jar --release-json upstream-release.json
+```
+
+工具验证官方版本、提交、哈希和原始类字节，输出根目录 `build/deps/FancyNpcs-2.12.1-upstream-nms.jar` 及同目录的 `FancyNpcs-2.12.1-upstream-nms.manifest.json`。在上面的 Gradle 命令中追加 `'-PupstreamNmsJar=提取结果的绝对路径'` 即可复现该构建路径；省略则编译全部源码模块。
+
+Windows 中文路径出现启动器问题时，可将 `-Djdk.net.unixdomain.tmpdir` 和可选 `-PtestClasspathDir` 指向短英文目录。在仓库根目录执行 `python tools/package_release.py` 生成发布包到 `dist/`；工具核验当前两个 JAR 与 `validation.json` 的哈希。依赖、缓存、日志及构建目录不上传。
+
+## 许可与来源
+
+源码沿用 [MIT 许可](LICENSE)，保留上游版权 **Copyright (c) 2025 Oliver Schlüter**；定制维护与集成为 **Loliiiico**。上游项目、PR 提交及外部依赖说明见 [NOTICE](NOTICE)。ModelEngine 和 BetterModel 按各自许可取得并独立安装，本项目不分发它们的 JAR。

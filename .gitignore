@@ -1,0 +1,28 @@
+# Build output and local dependency inputs
+**/.gradle/
+**/build/
+**/run/
+dist/
+deps/
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.zip
+*.class
+*.log
+*.hprof
+__pycache__/
+*.pyc
+
+# Local credentials and editor configuration
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+local.properties
+gradle-local.properties
+**/.idea/
+**/.vscode/
+.DS_Store
+Thumbs.db
