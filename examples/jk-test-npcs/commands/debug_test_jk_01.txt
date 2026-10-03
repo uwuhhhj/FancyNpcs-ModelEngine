@@ -1,0 +1,26 @@
+# 按需逐条执行，不要一次运行全部指令，否则后面的动作会覆盖前面的动作。
+# 恢复自动待机和三个微动作。
+/npc play_animation test_jk_01 idle --loop
+# 挥手、点头、说话、微笑、惊讶：分别播放一次。
+/npc play_animation test_jk_01 wave
+/npc play_animation test_jk_01 nod
+/npc play_animation test_jk_01 talk
+/npc play_animation test_jk_01 smile
+/npc play_animation test_jk_01 surprised
+# 坐下、潜行待机、趴下、床上睡眠、攀爬静止：保持姿态。
+# 用第一条 idle --loop 结束姿态并恢复自动待机。
+/npc play_animation test_jk_01 sit --loop
+/npc play_animation test_jk_01 crouch_idle --loop
+/npc play_animation test_jk_01 crawl_idle --loop
+/npc play_animation test_jk_01 bed_sleep --loop
+/npc play_animation test_jk_01 ladder_stillness --loop
+# 循环展示行走、奔跑和飞行动画，仅展示动作，不移动 NPC。
+/npc play_animation test_jk_01 walk --loop
+/npc play_animation test_jk_01 run --loop
+/npc play_animation test_jk_01 fly --loop
+# 大小与追踪开关：按需要选择一条执行。
+/npc scale test_jk_01 0.75
+/npc scale test_jk_01 0.9
+/npc scale test_jk_01 1
+/npc turn_to_player test_jk_01 false
+/npc turn_to_player test_jk_01 true

@@ -5,6 +5,7 @@ import com.fancyinnovations.config.ConfigField;
 import com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin;
 import com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationSettings;
 import com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTracking;
+import com.fancyinnovations.fancynpcsmodel.providers.modelengine.RuntimeHeadBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class FancyNpcsModelConfigImpl {
 
         config.addField(new ConfigField<>(
                 LOG_LEVEL_PATH,
-                "The log level for the plugin (DEBUG, INFO, WARN, ERROR).",
+                "日志级别：DEBUG、INFO、WARN、ERROR。",
                 false,
                 "INFO",
                 false,
@@ -37,7 +38,7 @@ public class FancyNpcsModelConfigImpl {
 
         config.addField(new ConfigField<>(
                 MUTE_VERSION_NOTIFICATION_PATH,
-                "Whether version notifications are muted.",
+                "是否屏蔽版本通知；true 屏蔽，false 显示。",
                 false,
                 false,
                 false,
@@ -46,49 +47,53 @@ public class FancyNpcsModelConfigImpl {
 
         config.addField(new ConfigField<>(
                 LANGUAGE_PATH,
-                "The language for the plugin.",
+                "插件消息使用的语言文件。",
                 false,
                 "default",
                 false,
                 String.class
         ));
 
-        field("head-tracking.enabled", true, Boolean.class, "Smoothly look at players when turn_to_player is enabled.");
-        number("head-tracking.max-yaw-degrees", 65, "Maximum head yaw relative to the body's current direction.");
-        number("head-tracking.max-pitch-degrees", 35, "Maximum head pitch in either direction.");
-        number("head-tracking.yaw-speed-degrees-per-second", 180, "Maximum horizontal head turning speed.");
-        number("head-tracking.pitch-speed-degrees-per-second", 120, "Maximum vertical head turning speed.");
-        number("head-tracking.response-per-second", 8, "Exponential response rate; larger values respond faster.");
-        number("head-tracking.dead-zone-degrees", .25, "Ignore tiny head angle changes.");
-        number("head-tracking.switch-distance-ratio", .8, "Switch to another player only when meaningfully closer.");
-        number("head-tracking.minimum-target-hold-seconds", .75, "Minimum duration to keep a valid look target.");
-        number("head-tracking.lost-target-grace-seconds", .2, "Grace period before returning to the original direction.");
-        number("head-tracking.exit-range-multiplier", 1.15, "Exit distance multiplier to avoid flickering at the range boundary.");
-        field("body-follow.enabled", true, Boolean.class, "Let the body smoothly follow the head after a delay.");
-        number("body-follow.start-angle-degrees", 35, "Start the body after the head turns this far from the shoulders.");
-        number("body-follow.stop-angle-degrees", 2, "Stop following when the head and body are nearly aligned.");
-        number("body-follow.delay-seconds", .3, "Time the head must stay beyond the start angle before the body follows.");
-        number("body-follow.yaw-speed-degrees-per-second", 90, "Maximum body turning speed.");
-        number("body-follow.response-per-second", 5, "Body smoothing response rate.");
-        field("body-follow.pause-during-pose", true, Boolean.class, "Keep the body still while a manual pose is active; the head may still look around.");
-        field("idle.enabled", true, Boolean.class, "Enable the concurrent ambient animation layers.");
+        field("head-tracking.enabled", true, Boolean.class, "在 NPC 开启 turn_to_player 时平滑看向玩家。");
+        field("head-tracking.runtime-head-bone.enabled", true, Boolean.class,
+                "模型没有头部行为时，给当前 NPC 的骨骼补上头部追踪；不会修改蓝图或资源包。");
+        field("head-tracking.runtime-head-bone.bone-names", List.of("Head", "AllHead"), List.class,
+                "按顺序匹配第一个头部骨骼，忽略大小写；头发、耳朵等子骨骼继承旋转。");
+        number("head-tracking.max-yaw-degrees", 65, "头部相对身体当前朝向的最大水平偏转，单位为度。");
+        number("head-tracking.max-pitch-degrees", 35, "最大抬头或低头角度，单位为度。");
+        number("head-tracking.yaw-speed-degrees-per-second", 180, "头部水平转动的最高速度，单位为度/秒。");
+        number("head-tracking.pitch-speed-degrees-per-second", 120, "头部俯仰转动的最高速度，单位为度/秒。");
+        number("head-tracking.response-per-second", 8, "头部平滑响应系数，越大反应越快。");
+        number("head-tracking.dead-zone-degrees", .25, "忽略小于此值的头部角度变化，单位为度。");
+        number("head-tracking.switch-distance-ratio", .8, "新玩家足够近才切换；0.8 表示新距离小于当前距离的 80%。");
+        number("head-tracking.minimum-target-hold-seconds", .75, "切换目标前保持当前有效目标的最短时间，单位为秒。");
+        number("head-tracking.lost-target-grace-seconds", .2, "目标消失后等待多久再让头部回正，单位为秒。");
+        number("head-tracking.exit-range-multiplier", 1.15, "目标退出距离倍率，减少范围边缘的来回切换。");
+        field("body-follow.enabled", true, Boolean.class, "头部先转动，身体延迟后平滑跟上。");
+        number("body-follow.start-angle-degrees", 35, "头部相对肩膀偏转达到此角度后开始计时，单位为度。");
+        number("body-follow.stop-angle-degrees", 2, "头身角度差缩小到此值时停止转身，单位为度。");
+        number("body-follow.delay-seconds", .3, "头部持续超过起转角度多久才开始转身，单位为秒。");
+        number("body-follow.yaw-speed-degrees-per-second", 90, "身体水平转动的最高速度，单位为度/秒。");
+        number("body-follow.response-per-second", 5, "身体平滑响应系数，越大反应越快。");
+        field("body-follow.pause-during-pose", true, Boolean.class, "手动姿态期间暂停转身，头部仍可按设置追踪。");
+        field("idle.enabled", true, Boolean.class, "开启并行循环微动作；关闭时也停止随机手势，基础待机保留。");
         for (String state : List.of("idle", "walk", "jump", "death"))
-            field("idle.default-states." + state, state, String.class, "Model animation used for the default " + state + " state.");
+            field("idle.default-states." + state, state, String.class, "默认 " + state + " 状态使用的模型动画名。");
         field("idle.loop-animations", List.of("ribbon_sway", "tail_hair_sway", "blink"), List.class,
-                "Parallel ambient loops, in increasing priority; missing animations are skipped.");
-        field("idle.random-gestures.enabled", false, Boolean.class, "Optionally play occasional idle gestures.");
-        field("idle.random-gestures.animations", List.of("smile", "nod"), List.class, "Animations to choose for occasional gestures.");
-        field("idle.random-gestures.min-interval-ticks", 160, Integer.class, "Minimum ticks between random idle gestures.");
-        field("idle.random-gestures.max-interval-ticks", 400, Integer.class, "Maximum ticks between random idle gestures.");
-        number("animations.blend-in-seconds", .05, "Animation fade-in in seconds (0.05 is one server tick).");
-        number("animations.blend-out-seconds", .05, "Animation fade-out in seconds.");
-        number("animations.speed", 1, "Base, ambient and pose animation speed multiplier.");
-        number("animations.gesture-speed", 1.35, "One-shot gesture speed multiplier.");
+                "按列表顺序分配递增优先级的循环微动作；缺失动画会跳过。");
+        field("idle.random-gestures.enabled", false, Boolean.class, "是否偶尔自动播放随机待机手势。");
+        field("idle.random-gestures.animations", List.of("smile", "nod"), List.class, "随机手势候选动画，只选择模型中存在的动画。");
+        field("idle.random-gestures.min-interval-ticks", 160, Integer.class, "随机手势最短间隔，20 tick 在 20 TPS 时为 1 秒。");
+        field("idle.random-gestures.max-interval-ticks", 400, Integer.class, "随机手势最长间隔，单位为 tick。");
+        number("animations.blend-in-seconds", .05, "动画进入混合时间，单位为秒；0.05 秒约为一个服务端 tick。");
+        number("animations.blend-out-seconds", .05, "动画退出混合时间，单位为秒。");
+        number("animations.speed", 1, "基础动画、循环微动作和姿态的速度倍率。");
+        number("animations.gesture-speed", 1.35, "普通手势动画的速度倍率。");
         field("animations.pose-animations", List.of("crouch_idle", "sit", "sleep", "climb_idle"), List.class,
-                "Animations treated as poses at priority 5 (other manual actions use priority 4).");
+                "视为姿态的动画；配合 --loop 保持最后一帧，优先级高于微动作和手势。");
         field("animations.head-tracking-pause-animations", List.of("sleep", "nod", "talk", "wave"), List.class,
-                "Temporarily stop looking at players while these animations move the head.");
-        field("animations.pause-random-gestures-during-pose", true, Boolean.class, "Do not add random gestures while a pose is held.");
+                "这些手动动画播放期间暂停叠加玩家视线追踪。");
+        field("animations.pause-random-gestures-during-pose", true, Boolean.class, "手动姿态期间暂停随机手势。");
 
     }
 
@@ -136,7 +141,9 @@ public class FancyNpcsModelConfigImpl {
                 value("head-tracking.minimum-target-hold-seconds", 0, 30, .75),
                 value("head-tracking.lost-target-grace-seconds", 0, 10, .2),
                 value("head-tracking.exit-range-multiplier", 1, 3, 1.15), body);
-        motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation);
+        motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation,
+                new RuntimeHeadBinding.Settings(bool("head-tracking.runtime-head-bone.enabled"),
+                        names("head-tracking.runtime-head-bone.bone-names")));
     }
 
     private <T> void field(String path, T defaultValue, Class<?> type, String description) {
@@ -167,7 +174,7 @@ public class FancyNpcsModelConfigImpl {
 
     public MotionSettings getMotionSettings() { return motionSettings; }
     public record MotionSettings(boolean headTrackingEnabled, SmoothHeadTracking.Config headTracking,
-                                 ModelEngineAnimationSettings animations) { }
+                                 ModelEngineAnimationSettings animations, RuntimeHeadBinding.Settings headBinding) { }
 
     public Config getConfig() {
         return config;

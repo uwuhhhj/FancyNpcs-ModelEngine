@@ -1,0 +1,13 @@
+/npc create test_jk_01
+/npc type test_jk_01 player
+/npc displayname test_jk_01 看不见需要更新材质包
+/npc scale test_jk_01 0.9
+/npc custom_model test_jk_01 me:ysm_01_jk
+/npc turn_to_player test_jk_01 true
+/npc turn_to_player_distance test_jk_01 6
+/npc interaction_cooldown test_jk_01 1s
+/npc action test_jk_01 RIGHT_CLICK add message 你好，我是测试NPC 01！右键挥手，左键点头。
+/npc action test_jk_01 RIGHT_CLICK add play_animation_once wave
+/npc action test_jk_01 LEFT_CLICK add message 测试NPC 01：收到，我来点个头。
+/npc action test_jk_01 LEFT_CLICK add play_animation_once nod
+/npc play_animation test_jk_01 idle --loop

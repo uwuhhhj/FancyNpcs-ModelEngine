@@ -10,6 +10,13 @@ settings:
     head-tracking:
       # 还需对 NPC 启用 /npc turn_to_player <npc> true；追踪范围沿用 FancyNpcs 设置。
       enabled: true
+      # 缺少 h_/hi_ 头部行为的模型，在当前 NPC 实例上补齐，原蓝图保持不变。
+      runtime-head-bone:
+        enabled: true
+        # 按顺序选择第一个匹配的骨骼，忽略大小写；子骨骼继承头部旋转。
+        bone-names:
+          - Head
+          - AllHead
       # 相对于身体当前朝向的头部旋转限制，单位：度。
       max-yaw-degrees: 65.0
       max-pitch-degrees: 35.0

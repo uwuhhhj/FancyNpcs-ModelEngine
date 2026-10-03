@@ -1,0 +1,144 @@
+{
+  "package": "FancyNpcs-JK-TestNPCs-1.3.2-config-v2",
+  "fancynpcs_version": "2.12.2-simmc-me.1",
+  "fancynpcsmodel_version": "1.3.2-simmc-me.1",
+  "yaml_keys_validated": 40,
+  "npc_checks": [
+    {
+      "npc": "test_jk_01",
+      "model": "ysm_01_jk",
+      "animations": 57,
+      "original_model_sha256": "c6b55c6765713c6d843cad0da78350782f1e1d068cb4920b0dca083465fcc2f5",
+      "configured_animations_valid": true,
+      "ambient_loops_valid": true,
+      "command_animation_names_valid": true
+    },
+    {
+      "npc": "test_jk_02",
+      "model": "ysm_02_jk",
+      "animations": 57,
+      "original_model_sha256": "9a0b3859266ba146232553cd5e5869ef01d4c98214fd08569571bf9130eb75ac",
+      "configured_animations_valid": true,
+      "ambient_loops_valid": true,
+      "command_animation_names_valid": true
+    }
+  ],
+  "contains_blueprints": false,
+  "resource_pack_update_required": false,
+  "interaction_cooldown_unit_validated": "1s",
+  "in_game_executed": false,
+  "files": {
+    "commands/create_test_jk_01.txt": "4e95b3149abeac3b41e8b83e6d57f814221280276dc13feefa26d833f8cfb146",
+    "commands/create_test_jk_02.txt": "edcecabe85e037fe00f06db39149715089537ec6c86d2e29a4985b090fe63173",
+    "commands/debug_test_jk_01.txt": "99693e2869bd3fe2d029469f1cbaa204ed0dfb630d6320410f1ebf30918b5c02",
+    "commands/debug_test_jk_02.txt": "81fcae5c84b27ea1d1d6600184500c3f26a62b4f35e912954427cee6d720c206",
+    "commands/update_existing_npcs.txt": "e4a5abfab305abfe2e854880971565452ae3fc87e836e369c86417e2d591c169",
+    "plugins/FancyNpcsModel/config.yml": "c55253df7674ebbb630a5e186c7909862c9545fce1f05e285cf33a00286a3f8a",
+    "README.md": "5fa33e818a6f51dc6ba5195a1c3bbe277c4c0303165d1b0f68f22d85eacf6756"
+  },
+  "localhost_bone_probe": {
+    "addon_version": "1.3.2-simmc-me.1",
+    "idle_enabled": true,
+    "configured_loops": [
+      "pre_parallel1",
+      "pre_parallel2",
+      "pre_parallel3"
+    ],
+    "bone_evaluation": "Explicit parent-before-child bone ticks for snapshots; ME skips transforms without real viewers.",
+    "probe_ysm_01_jk": {
+      "active_head_behavior_bones": 1,
+      "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+      "blueprint_cache_unchanged": true,
+      "layers": {
+        "pre_parallel1": {
+          "begin_time": 0.65,
+          "end_time": 2.2499999999999623
+        },
+        "pre_parallel2": {
+          "begin_time": 0.65,
+          "end_time": 1.0499999999999488
+        },
+        "pre_parallel3": {
+          "begin_time": 0.65,
+          "end_time": 6.4499999999999265
+        }
+      },
+      "bone_motion": {
+        "Bangs": {
+          "max_rotation_degrees": 4.8095373303227875
+        },
+        "Tail": {
+          "max_rotation_degrees": 23.284277899864037
+        },
+        "Tail2": {
+          "max_rotation_degrees": 39.50677678020487
+        },
+        "Left_ear": {
+          "max_rotation_degrees": 23.749918475420436
+        },
+        "Right_ear": {
+          "max_rotation_degrees": 19.0113593995829
+        }
+      },
+      "effective_pitch_down": 24.805058,
+      "head_pitch_down_rotation_delta_degrees": 24.80498611837613,
+      "effective_pitch_up": -24.792986,
+      "head_pitch_up_rotation_delta_degrees": 49.59802699822458,
+      "binding_options": [
+        "existing visible HEAD preserved",
+        "disabled respected",
+        "missing bone skipped",
+        "case-insensitive matching"
+      ]
+    },
+    "probe_ysm_02_jk": {
+      "active_head_behavior_bones": 1,
+      "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+      "blueprint_cache_unchanged": true,
+      "layers": {
+        "pre_parallel1": {
+          "begin_time": 0.65,
+          "end_time": 2.2499999999999623
+        },
+        "pre_parallel2": {
+          "begin_time": 0.65,
+          "end_time": 1.0499999999999488
+        },
+        "pre_parallel3": {
+          "begin_time": 0.65,
+          "end_time": 6.4499999999999265
+        }
+      },
+      "bone_motion": {
+        "Bangs": {
+          "max_rotation_degrees": 4.8095373303227875
+        },
+        "Tail": {
+          "max_rotation_degrees": 23.284277899864037
+        },
+        "Tail2": {
+          "max_rotation_degrees": 39.50677678020487
+        },
+        "Left_ear": {
+          "max_rotation_degrees": 23.749918475420436
+        },
+        "Right_ear": {
+          "max_rotation_degrees": 19.0113593995829
+        }
+      },
+      "effective_pitch_down": 24.805058,
+      "head_pitch_down_rotation_delta_degrees": 24.80498611837613,
+      "effective_pitch_up": -24.792986,
+      "head_pitch_up_rotation_delta_degrees": 49.59802699822458,
+      "binding_options": [
+        "existing visible HEAD preserved",
+        "disabled respected",
+        "missing bone skipped",
+        "case-insensitive matching"
+      ]
+    },
+    "passed": true,
+    "message": "Original models animate hair/ears/tail; runtime HEAD binding=true; blueprint cache unchanged.",
+    "players": 0
+  }
+}

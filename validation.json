@@ -1,16 +1,21 @@
 {
-  "schema": 1,
+  "schema": 2,
+  "generated_utc": "2026-10-03T15:26:49.115732+00:00",
+  "source_base_commit": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+  "authors": [
+    "OliverSchlueter",
+    "Loliiiico"
+  ],
   "target": {
     "server": "Paper 1.21.11 build 132",
     "java": "Temurin 25.0.3+9",
     "modelengine": "R4.1.1",
     "folia": false
   },
-  "authors": [
-    "OliverSchlueter",
-    "Loliiiico"
-  ],
-  "source_base_commit": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
+  "versions": {
+    "FancyNpcs": "2.12.2-simmc-me.1",
+    "FancyNpcsModel": "1.3.2-simmc-me.1"
+  },
   "upstream_release": {
     "version": "2.12.1",
     "modrinth_id": "LigxTtVw",
@@ -27,6 +32,261 @@
     "26_2",
     "26_3"
   ],
+  "build": {
+    "result": "passed",
+    "gradle": "9.7.1",
+    "tasks": [
+      ":plugins:fancynpcs-model:test",
+      ":plugins:fancynpcs-model:shadowJar"
+    ],
+    "core_jar_reused_unchanged": true
+  },
+  "unit_tests": {
+    "result": "passed",
+    "total": 42,
+    "suites": [
+      {
+        "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "head_binding_integration": {
+    "result": "passed",
+    "online_players": 0,
+    "scope": "Isolated Paper localhost server, production provider/settings with explicit bone snapshot evaluation because ME culls without viewers. Placement pitch drives the provider; no actual player eye target or client rendering was exercised.",
+    "baseline_sampling": "100 snapshots at 2-tick intervals, left decomposition quaternion",
+    "fixed_sampling": "300 snapshots at 1-tick intervals, combined normalized left/right quaternion",
+    "original_models": [
+      {
+        "id": "ysm_01_jk",
+        "sha256": "c6b55c6765713c6d843cad0da78350782f1e1d068cb4920b0dca083465fcc2f5",
+        "loaded_bytes_match_original": true
+      },
+      {
+        "id": "ysm_02_jk",
+        "sha256": "9a0b3859266ba146232553cd5e5869ef01d4c98214fd08569571bf9130eb75ac",
+        "loaded_bytes_match_original": true
+      }
+    ],
+    "baseline": {
+      "addon_version": "1.3.1-simmc-me.1",
+      "idle_enabled": true,
+      "configured_loops": [
+        "pre_parallel1",
+        "pre_parallel2",
+        "pre_parallel3"
+      ],
+      "bone_evaluation": "Explicit parent-before-child bone ticks for snapshots; ME skips transforms without real viewers.",
+      "probe_ysm_01_jk": {
+        "active_head_behavior_bones": 0,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadForcedImpl",
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.6,
+            "end_time": 3.3999999999999795
+          },
+          "pre_parallel2": {
+            "begin_time": 0.6,
+            "end_time": 0.7749999999999739
+          },
+          "pre_parallel3": {
+            "begin_time": 0.6,
+            "end_time": 7.499999999999962
+          }
+        },
+        "bone_motion": {
+          "Bangs": {
+            "max_rotation_degrees": 4.801065146391026
+          },
+          "Tail": {
+            "max_rotation_degrees": 23.284345592992196
+          },
+          "Tail2": {
+            "max_rotation_degrees": 39.50677678020487
+          },
+          "Left_ear": {
+            "max_rotation_degrees": 23.749852090793446
+          },
+          "Right_ear": {
+            "max_rotation_degrees": 14.238533981156221
+          }
+        },
+        "effective_pitch_down": 24.805058,
+        "head_pitch_down_rotation_delta_degrees": 0.0,
+        "effective_pitch_up": -24.792986,
+        "head_pitch_up_rotation_delta_degrees": 0.0
+      },
+      "probe_ysm_02_jk": {
+        "active_head_behavior_bones": 0,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadForcedImpl",
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.6,
+            "end_time": 3.3999999999999795
+          },
+          "pre_parallel2": {
+            "begin_time": 0.6,
+            "end_time": 0.7749999999999739
+          },
+          "pre_parallel3": {
+            "begin_time": 0.6,
+            "end_time": 7.499999999999962
+          }
+        },
+        "bone_motion": {
+          "Bangs": {
+            "max_rotation_degrees": 4.801065146391026
+          },
+          "Tail": {
+            "max_rotation_degrees": 23.284345592992196
+          },
+          "Tail2": {
+            "max_rotation_degrees": 39.50677678020487
+          },
+          "Left_ear": {
+            "max_rotation_degrees": 23.749852090793446
+          },
+          "Right_ear": {
+            "max_rotation_degrees": 14.238533981156221
+          }
+        },
+        "effective_pitch_down": 24.805058,
+        "head_pitch_down_rotation_delta_degrees": 0.0,
+        "effective_pitch_up": -24.792986,
+        "head_pitch_up_rotation_delta_degrees": 0.0
+      },
+      "passed": true,
+      "message": "Original models animate hair/ears/tail; runtime HEAD binding=false; blueprint cache unchanged.",
+      "players": 0
+    },
+    "fixed": {
+      "addon_version": "1.3.2-simmc-me.1",
+      "idle_enabled": true,
+      "configured_loops": [
+        "pre_parallel1",
+        "pre_parallel2",
+        "pre_parallel3"
+      ],
+      "bone_evaluation": "Explicit parent-before-child bone ticks for snapshots; ME skips transforms without real viewers.",
+      "probe_ysm_01_jk": {
+        "active_head_behavior_bones": 1,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.65,
+            "end_time": 2.2499999999999623
+          },
+          "pre_parallel2": {
+            "begin_time": 0.65,
+            "end_time": 1.0499999999999488
+          },
+          "pre_parallel3": {
+            "begin_time": 0.65,
+            "end_time": 6.4499999999999265
+          }
+        },
+        "bone_motion": {
+          "Bangs": {
+            "max_rotation_degrees": 4.8095373303227875
+          },
+          "Tail": {
+            "max_rotation_degrees": 23.284277899864037
+          },
+          "Tail2": {
+            "max_rotation_degrees": 39.50677678020487
+          },
+          "Left_ear": {
+            "max_rotation_degrees": 23.749918475420436
+          },
+          "Right_ear": {
+            "max_rotation_degrees": 19.0113593995829
+          }
+        },
+        "effective_pitch_down": 24.805058,
+        "head_pitch_down_rotation_delta_degrees": 24.80498611837613,
+        "effective_pitch_up": -24.792986,
+        "head_pitch_up_rotation_delta_degrees": 49.59802699822458,
+        "binding_options": [
+          "existing visible HEAD preserved",
+          "disabled respected",
+          "missing bone skipped",
+          "case-insensitive matching"
+        ]
+      },
+      "probe_ysm_02_jk": {
+        "active_head_behavior_bones": 1,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.65,
+            "end_time": 2.2499999999999623
+          },
+          "pre_parallel2": {
+            "begin_time": 0.65,
+            "end_time": 1.0499999999999488
+          },
+          "pre_parallel3": {
+            "begin_time": 0.65,
+            "end_time": 6.4499999999999265
+          }
+        },
+        "bone_motion": {
+          "Bangs": {
+            "max_rotation_degrees": 4.8095373303227875
+          },
+          "Tail": {
+            "max_rotation_degrees": 23.284277899864037
+          },
+          "Tail2": {
+            "max_rotation_degrees": 39.50677678020487
+          },
+          "Left_ear": {
+            "max_rotation_degrees": 23.749918475420436
+          },
+          "Right_ear": {
+            "max_rotation_degrees": 19.0113593995829
+          }
+        },
+        "effective_pitch_down": 24.805058,
+        "head_pitch_down_rotation_delta_degrees": 24.80498611837613,
+        "effective_pitch_up": -24.792986,
+        "head_pitch_up_rotation_delta_degrees": 49.59802699822458,
+        "binding_options": [
+          "existing visible HEAD preserved",
+          "disabled respected",
+          "missing bone skipped",
+          "case-insensitive matching"
+        ]
+      },
+      "passed": true,
+      "message": "Original models animate hair/ears/tail; runtime HEAD binding=true; blueprint cache unchanged.",
+      "players": 0
+    },
+    "dedicated_blueprints_generated": false,
+    "resource_pack_changes_required": false
+  },
   "not_verified": [
     "Client resource-pack rendering and motion quality",
     "Actual player right/left-click packet execution and dialog delivery",
@@ -34,315 +294,58 @@
     "Live cross-world NPC movement",
     "BetterModel optional provider runtime",
     "26.x runtime (upstream core implementations retained)",
-    "Folia model integration (unsupported; upstream core Folia support retained)"
+    "Folia model integration (unsupported; upstream core Folia support retained)",
+    "Actual player eye targeting in the 1.3.2 head binding probe (placement pitch and bone rotation checked instead)"
   ],
   "known_limits": [
     "A single ME dummy shares head direction among observers.",
     "Native packet NPC appearance can flash briefly before next-tick invisibility synchronization.",
     "Model animations do not grant NPC flight or crawling movement."
   ],
-  "publication_note": "Local machine paths and runtime files are excluded from this public report.",
-  "generated_utc": "2026-10-02T19:14:31.674373+00:00",
-  "versions": {
-    "FancyNpcs": "2.12.2-simmc-me.1",
-    "FancyNpcsModel": "1.3.1-simmc-me.1"
-  },
-  "build": {
-    "result": "passed",
-    "gradle": "9.7.1",
-    "tasks": [
-      ":plugins:fancynpcs-v2:shadowJar",
-      ":plugins:fancynpcs-model:shadowJar",
-      ":plugins:fancynpcs-model:test"
-    ],
-    "nms_implementation_reuse": {
-      "classes": 432,
-      "npc_modules": 7,
-      "packet_modules": 7,
-      "all_classes_match_official_stable_jar": true,
-      "compile_api": "Paper 1.21.11",
-      "default_source_build_modules_retained": true,
-      "source_modules": [
-        {
-          "path": "plugins/fancynpcs-v2/implementation_1_21_5",
-          "files": 40,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/1_21_5",
-          "files": 25,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_1_21_6",
-          "files": 41,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/1_21_6",
-          "files": 29,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_1_21_9",
-          "files": 42,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/1_21_9",
-          "files": 29,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_1_21_11",
-          "files": 42,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/1_21_11",
-          "files": 29,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_26_1_2",
-          "files": 42,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/26_1_2",
-          "files": 29,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_26_2",
-          "files": 42,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/26_2",
-          "files": 29,
-          "unchanged": true
-        },
-        {
-          "path": "plugins/fancynpcs-v2/implementation_26_3",
-          "files": 42,
-          "unchanged": true
-        },
-        {
-          "path": "libraries/packets/implementations/26_3",
-          "files": 29,
-          "unchanged": true
-        }
-      ]
-    }
-  },
-  "unit_tests": {
-    "tests": 42,
-    "failures": 0,
-    "errors": 0,
-    "skipped": 0,
-    "suites": [
-      {
-        "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest",
-        "tests": 10,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0,
-        "timestamp_utc": "2026-10-02T19:06:32.306Z",
-        "seconds": 0.045
-      },
-      {
-        "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest",
-        "tests": 24,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0,
-        "timestamp_utc": "2026-10-02T19:06:32.353Z",
-        "seconds": 0.034
-      },
-      {
-        "suite": "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest",
-        "tests": 8,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0,
-        "timestamp_utc": "2026-10-02T19:06:31.745Z",
-        "seconds": 0.559
-      }
-    ],
-    "cases": [
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.initialAmbientLayersStayIndependentAndHealthyLoopsNeverRestart()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.missingOptionalLoopsAreSkippedAndClosePreservesExternalProperties()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.idleWithOrWithoutLoopClearsHeldPoseAndDoesNotDuplicateAutomaticIdle()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.sameSettingsAppliedEveryTickPreserveHeldPoseAndAmbientTimelines()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.sameNameReplayCannotStopTheNewPropertyAndCancelledReplacementKeepsOldPose()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.disablingAmbientLeavesDefaultStatesAndManualCommandsAvailable()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.onceGestureUsesOnceEvenForAHoldingBlueprintAndReturnsToExistingDefault()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.oneShotPoseIsActiveWithoutBeingHeldAndEndsCleanly()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.optionalRandomGesturesRespectPauseAndCanOverlayPoseWithoutCancellingIt()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.invalidBlendAndCollidingLayersAreRejectedBeforePlayingAnything()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.deadZoneSuppressesTinyTargetJitterAndResetClearsTarget()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.bodyCatchesUpWithoutAddingItsRotationToHeadSpeed()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.malformedInputCannotPoisonAnExistingTrackingState()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.bodySettingsRejectInvalidThresholdsTimingAndSpeeds()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.acquisitionAndExitRangesHaveHysteresis()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.reloadPreservesTurnedHeadingAndAppliesNewBodySpeedLimit()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.targetCrossingDirectlyBehindTheNpcDoesNotAlternateNeckSides()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.headOnlyConfigurationKeepsTheBodyStill()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.temporaryMissingTargetIsRetainedThenHeadReturnsSmoothly()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.disablingTrackingReleasesImmediatelyButDoesNotSnapHead()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.rearTargetJitterDoesNotKeepReversingTheBodyTurn()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.aPlayerBehindCannotTurnTheHeadOrPitchBeyondConfiguredLimits()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.wholeBodyTurnsAcrossYawBoundaryWhilePlacementYawStaysUnchanged()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.aFastBodyCannotOvertakeASlowHead()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.disablingBodyFollowKeepsCurrentHeadingAndContinuesHeadTracking()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.poseCanPauseBodyWhileHeadLooksAroundThenResumeAfterDelay()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.nearEqualDistancesAndReversedIterationDoNotSwitchPlayers()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.crossingYawBoundaryTakesTheShortPathAndKeepsContinuousAngles()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.intentionalNpcOrientationChangeResetsPlacementButNotEveryTick()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.losingTargetStopsBodyImmediatelyAndHeadReturnsToNewBodyDirection()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.switchingPlayersRestartsBodyDelayWithoutSnappingHeading()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.substantiallyCloserPlayerMustWaitForMinimumTargetHold()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.configurationReloadRetainsTargetAndMovesTowardNewLimitsWithoutReset()",
-      "com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.defaultBodyFollowWaitsForHeadAngleAndConfiguredDelay()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.unprefixedNamesKeepBetterModelPriorityWhenBothHaveTheModel()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.singleProviderSuggestionsRemainValidAfterFancyNpcsReloadsSavedAttributes()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.removeAttemptsEveryProviderEvenIfOneCleanupFails()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.betterModelOnlySuggestionsIncludeBothExplicitPrefixes()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.malformedAndUnknownProviderPrefixesNeverFallBackToAnotherProvider()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.providerViewCannotBeMutatedByCallers()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.shutdownClearsRegistryAndClosesRemainingProvidersAfterOneFailure()",
-      "com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.allDocumentedPrefixesResolveWithOnlyModelEngineInstalled()"
-    ]
-  },
   "artifacts": [
     {
       "filename": "FancyNpcs-2.12.2-simmc-me.1.jar",
-      "bytes": 6729638,
+      "name": "FancyNpcs",
+      "version": "2.12.2-simmc-me.1",
+      "api_version": "1.19",
       "sha256": "0f48c706429bd5280ec6e646d35dd91fb6fc913f18d87863893a5df20c2633df",
-      "zip_crc": "passed",
-      "duplicate_entries": 0,
-      "authors_verified": true,
-      "main_class_java_release": 25,
-      "commercial_model_classes_bundled": false
-    },
-    {
-      "filename": "FancyNpcsModel-1.3.1-simmc-me.1.jar",
-      "bytes": 613236,
-      "sha256": "6ac7aa84cec602d5acd53a37efd35eff4d3766606b94c2f6eee91c877570f6c8",
-      "zip_crc": "passed",
-      "duplicate_entries": 0,
-      "authors_verified": true,
-      "main_class_java_release": 25,
-      "commercial_model_classes_bundled": false
-    }
-  ],
-  "runtime": {
-    "result": "passed",
-    "binding": "127.0.0.1:25579",
-    "online_players": 0,
-    "lifecycle_checks": [
-      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=c97d8a2c-4bde-434f-8768-22c4fbdc3361 saveToFile=false, zero observers",
-      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[04:10:45] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=4e17bfe6-d6c0-4816-af20-832f4777e03b",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation wave loop accepted by ME on main thread",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.5 box=0.30000001192092896x0.875x0.30000001192092896",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=animation-switch wave -> sit HOLD; outgoing 0.05s blend ended in 3 Paper ticks; all ambient properties retained",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=head-pause sleep pauses tracking policy; zero players, rendered head motion is not tested",
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=idle-reset manual pose ended; one default idle; tracking policy resumed",
-      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-disable real config reload disabled ambient layers; external priority 99 and default idle retained",
-      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=reload-restore real config reload restored all three ambient layers and preserved external property identity",
-      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
-      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
-      "[04:10:47] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] SUCCESS headless lifecycle + USM motion layers/reload passed; client visuals/head turning/right-click packets remain manual checks"
-    ],
-    "persistence_checks": [
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=create PLAYER npc=1cc15f49-1398-495e-ba5b-09e3dd26d104 saveToFile=true, zero observers",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=4d00bc54-5e77-463a-ad24-ee3b28341071",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
-      "[04:11:42] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_WRITE id=1cc15f49-1398-495e-ba5b-09e3dd26d104 real manager save; fixture remains for next boot; addon shutdown owns ME cleanup",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=scale scale=0.75 box=0.45000001788139343x1.3125x0.45000001788139343",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=attach ME owns model=ysm_01_jk_npc attribute=me:ysm_01_jk_npc base=52471f75-e2f6-4934-b118-68c0356fc1e2",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=motion-default rotation locked; default idle + priorities 1/2/3 concurrent; properties unchanged after 3 ticks",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-follow synthetic target samples drove head-first/body-follow; real provider applied ME body yaw=87.92327; unchanged placement yaw did not reset it; zero observers",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=body-reload real config reload disabled/restored body follow; turned heading and ambient identities retained",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=persist-auto-restore Existing fixture recovered its ME model without a probe apply/create call",
-      "[04:12:50] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=delete-request NpcRemoveEvent fired and own NPC removed from registry",
-      "[04:12:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS stage=cleanup NPC, provider, ME registry, dummy and active model released",
-      "[04:12:51] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] PASS_PERSIST_READ automatic model restoration and record/model deletion passed"
-    ],
-    "motion_layers_and_config_reload": "passed",
-    "normal_shutdown": "passed",
-    "body_follow": "Synthetic target samples exercise the disposable NPC tracking policy; real provider ticks apply body rotation through ModelEngine. Actual players and client frames are not covered.",
-    "animation_fade_observations": [
-      "[04:10:46] [Server thread/INFO]: [FancyNpcsMEMotionSmokeProbe] [SMOKE_PROBE] WAIT stage=animation-fade paperTicks=2 meTicks=2 phase=LERPOUT lerpOutTime=0.0675 stopping=true ended=false"
-    ],
-    "normal_shutdown_runs": 3,
-    "installed_artifacts": [
-      {
-        "filename": "FancyNpcs-2.12.2-simmc-me.1.jar",
-        "sha256": "0f48c706429bd5280ec6e646d35dd91fb6fc913f18d87863893a5df20c2633df",
-        "matches_final_artifact": true
+      "bytes": 6729638,
+      "descriptors": {
+        "paper-plugin.yml": {
+          "api-version": "1.19",
+          "name": "FancyNpcs",
+          "version": "2.12.2-simmc-me.1",
+          "main": "de.oliver.fancynpcs.FancyNpcs",
+          "authors": [
+            "OliverSchlueter",
+            "Loliiiico"
+          ]
+        }
       },
-      {
-        "filename": "FancyNpcsModel-1.3.1-simmc-me.1.jar",
-        "sha256": "6ac7aa84cec602d5acd53a37efd35eff4d3766606b94c2f6eee91c877570f6c8",
-        "matches_final_artifact": true
-      }
-    ],
-    "environment_notes": [
-      "All runs were headless with zero observers; packet clicks and rendered motion are not covered.",
-      "The upstream FancyAnalytics SDK emitted remote event response errors; probe integration checks passed."
-    ]
-  },
-  "upstream_core_dispatch_sources_unchanged": [
-    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/FancyNpcs.java",
-    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/AttributeManagerImpl.java",
-    "plugins/fancynpcs-v2/src/main/java/de/oliver/fancynpcs/listeners/PlayerUseUnknownEntityListener.java",
-    "libraries/packets/src/main/java/de/oliver/fancysitula/factories/PacketFactory.java",
-    "libraries/packets/src/main/java/de/oliver/fancysitula/factories/PacketListenerFactory.java"
-  ],
-  "commercial_dependencies_bundled": false,
-  "external_inputs": [
-    {
-      "filename": "ModelEngine-R4.1.1.jar",
-      "sha256": "6e03ec5b8a5b4efbc63ffec7daa8a34bd272dd2c2c3b29dce8174997b0422cc6"
+      "crc": "passed",
+      "external_model_classes": "not_checked"
     },
     {
-      "filename": "bettermodel-3.5.0-paper.jar",
-      "sha256": "0f983569b45e82f657fd6267f68115cc679fa066f0e8eec2ce328596dcb57ed6"
-    }
-  ],
-  "evidence": [
-    {
-      "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest.xml",
-      "sha256": "efe6be9596751bd6b9ebc6cdbfc99b219e26347ed07cd2b537309237075019ee"
-    },
-    {
-      "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTrackingTest.xml",
-      "sha256": "15e4fedd55a4192a75e7356680d012cc530c3f3692a507c853da58d0a9a3a062"
-    },
-    {
-      "filename": "TEST-com.fancyinnovations.fancynpcsmodel.providers.ModelProviderRegistryTest.xml",
-      "sha256": "2331880e19f83209d7cbba50803cdb223688160a1ae0fe87c0c2823d62b29ef8"
-    },
-    {
-      "filename": "lifecycle.log",
-      "sha256": "b290fae5a4b7f65e467f8bb10c29a6e164c5a677e1cb403df3ede72f565db76e"
-    },
-    {
-      "filename": "persist-write.log",
-      "sha256": "98532699b3e4616a74b3cf4b2f5b231da602729f704b0bb7ae4668ba746d6ae2"
-    },
-    {
-      "filename": "persist-read.log",
-      "sha256": "b6c37246681c8719a5f4db7dc8e23b1a82421e77bad55df0e98f023c6f62724f"
+      "filename": "FancyNpcsModel-1.3.2-simmc-me.1.jar",
+      "name": "FancyNpcsModel",
+      "version": "1.3.2-simmc-me.1",
+      "api_version": "1.21.11",
+      "sha256": "344ee30f10e6b6fb398c76d633068e0af71056992ebc73ce64e710d67f5c6d3c",
+      "bytes": 618802,
+      "descriptors": {
+        "paper-plugin.yml": {
+          "name": "FancyNpcsModel",
+          "main": "com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin",
+          "version": "1.3.2-simmc-me.1",
+          "api-version": "1.21.11",
+          "authors": [
+            "OliverSchlueter",
+            "Loliiiico"
+          ]
+        }
+      },
+      "crc": "passed",
+      "external_model_classes": "absent"
     }
   ]
 }

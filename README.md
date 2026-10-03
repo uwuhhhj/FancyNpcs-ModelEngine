@@ -1,12 +1,12 @@
 # FancyNpcs-ModelEngine
 
-为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.1-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
+为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.2-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
 
 基于官方稳定版 [FancyNpcs 2.12.1](https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1)，源码基线为 [`d71e17d5`](https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465)，模型扩展参考上游 [PR #315](https://github.com/FancyInnovations/FancyPlugins/pull/315)。这是独立维护的非官方定制版，版本号为本项目递增。
 
 主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。验证环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**；26.x 的 ME 集成未验证，本 addon 不支持 Folia。
 
-本版构建、**42 项单元测试**及三次真实 ME 无玩家运行检查通过，完整记录见 [validation.json](validation.json)。头部先转、身体延迟跟随、角度跨界、限速、姿态暂停和参数重载有独立单元测试；无玩家探针使用模拟目标样本检查实际 provider 写入 ME 的身体朝向，并验证配置重载、微动作、动画切换、删除清理和重启自动恢复。实际玩家观看/点击、资源包显示和多人可见性仍需验证。
+本版构建与 **42 项单元测试**通过；头部先转、身体延迟跟随、角度跨界、限速、姿态暂停及参数重载有独立单元测试。本次另用原 `ysm_01_jk`、`ysm_02_jk` 验证运行时头部绑定与并行微动作，报告见 [validation.json](validation.json)。实际玩家观看/点击、资源包显示和多人可见性仍需验证。
 
 ## 安装与使用
 
@@ -16,14 +16,14 @@
 2. 将两个新 JAR 放入服务器 `plugins/`，另行安装 ModelEngine R4.1.1。仅使用 ME 模型时不需要 BetterModel 或 MythicMobs。
 3. 用 Java 25 启动 Paper 1.21.11。模型继续放在 `plugins/ModelEngine/blueprints/npc/`；已有模型与 ME 资源包可以继续使用，首次导入才需 `/meg reload models` 并更新资源包。
 
-从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.1-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。
+从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.2-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。
 
 原 FancyNpcs 命令保持可用。下面以 OP 创建测试 NPC；模型需要包含示例使用的 `wave`、`sit`、`idle` 动画：
 
 ```text
 /npc create test_npc
 /npc type test_npc player
-/npc custom_model test_npc me:ysm_01_jk_npc
+/npc custom_model test_npc me:ysm_01_jk
 /npc action test_npc RIGHT_CLICK add message 你好，我是测试NPC。
 /npc action test_npc RIGHT_CLICK add play_animation_once wave
 /npc play_animation test_npc sit --loop
@@ -38,6 +38,10 @@
 模型生命周期、缩放、位置、可见性和点击校验接入 FancyNpcs。ME 模型的朝向由观察者共享，原生 NPC 初次隐身同步前可能短暂闪现。
 
 ### 自然待机与平滑看向玩家
+
+`1.3.2` 为没有 h_/hi_ 头部行为的模型补齐运行时绑定：默认按顺序查找 `Head`、`AllHead`，替换当前实例的隐藏 HEAD 占位，添加局部头部旋转并刷新子骨骼继承，头发、耳朵等子骨骼保留原动画。已有显式头部行为的模型沿用原设置。无需修改 `.bbmodel` 或重新打包资源包。
+
+新字段为 `head-tracking.runtime-head-bone.enabled` 和 `head-tracking.runtime-head-bone.bone-names`；改动后重载会重建相关 NPC 模型。速度参数仍支持平滑重载。使用原 `ysm_01_jk`、`ysm_02_jk` 的中文配置和两个测试 NPC 指令见 [测试示例](examples/jk-test-npcs/README.md)，其中提供更快的转头参数和正确的 `pre_parallel1/2/3` 微动作列表。
 
 `1.3.1` 修正上一版固定身体的处理：头部先看向玩家，偏转达到约 35° 并持续 0.3 秒后，身体以最高 90°/秒平滑跟上，直到头身基本对齐。身体跟随保持头部的世界朝向，头和身体由同一套逻辑控制，避免两套转向互相覆盖。启用追踪及设置范围：
 

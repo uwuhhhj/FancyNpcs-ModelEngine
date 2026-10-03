@@ -150,6 +150,9 @@ public final class ModelEngineProvider implements ModelProvider {
             if (modeled.getModel(blueprint.getName()).orElse(null) != model) {
                 throw new IllegalStateException("ModelEngine model attachment was cancelled");
             }
+            // addModel generates the live bones; binding before attachment sees
+            // an empty bone map and would silently leave only forced placeholders.
+            RuntimeHeadBinding.install(model, FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings().headBinding());
             AppliedModel applied = new AppliedModel(npc, modelName, dummy, modeled, model, location.clone(), scale);
             appliedModels.put(npc.getData().getId(), applied);
             dummyToNpc.put(dummy.getUUID(), applied);
@@ -274,6 +277,7 @@ public final class ModelEngineProvider implements ModelProvider {
                 // Rebuild displays in the destination world and recover models
                 // removed by an ME reload without retaining old entity handles.
                 if (!healthy(applied) || location.getWorld() != applied.location.getWorld()
+                        || !applied.headBindingSettings.equals(FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings().headBinding())
                         || ModelEngineAPI.getBlueprint(applied.modelName) != applied.model.getBlueprint()) {
                     discard(applied, false);
                     createModel(applied.npc, applied.modelName);
@@ -533,6 +537,7 @@ public final class ModelEngineProvider implements ModelProvider {
         String failure = "";
         final SmoothHeadTracking headTracking;
         final ModelEngineAnimationController animations;
+        final RuntimeHeadBinding.Settings headBindingSettings;
         AppliedModel(Npc npc, String name, Dummy<Npc> dummy, ModeledEntity modeled, ActiveModel model, Location location, double scale) {
             this.npc = npc;
             this.modelName = name;
@@ -543,6 +548,7 @@ public final class ModelEngineProvider implements ModelProvider {
             this.location = location;
             this.scale = scale;
             FancyNpcsModelConfigImpl.MotionSettings settings = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings();
+            this.headBindingSettings = settings.headBinding();
             this.headTracking = new SmoothHeadTracking(settings.headTracking());
             this.headTracking.reset(location.getYaw(), location.getPitch());
             this.animations = new ModelEngineAnimationController(model, settings.animations());

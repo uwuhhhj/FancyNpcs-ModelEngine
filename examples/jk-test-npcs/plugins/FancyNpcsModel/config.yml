@@ -1,0 +1,120 @@
+# 适用于 FancyNpcsModel 1.3.2-simmc-me.1。
+# ysm_01_jk 和 ysm_02_jk 共用此配置；会影响全部 ModelEngine NPC。
+# 放入 plugins/FancyNpcsModel/config.yml，然后执行 /fancynpcsmodel config reload。
+# 此文件不控制 MEPlayerActions 的玩家伪装；配置键和动画名必须保留英文。
+settings:
+  logging:
+    # 是否屏蔽版本通知：true 为屏蔽，false 为允许显示。
+    version_notification: false
+    # 日志级别：DEBUG 为调试，INFO 为常规，WARN 为警告，ERROR 为错误。
+    level: INFO
+  # 插件消息使用的语言文件；此处只汉化配置注释，沿用 default 语言文件。
+  language: default
+  modelengine:
+    idle:
+      # 开启并行微动作层；关闭后也会停止随机手势，基础待机仍由 ME 管理。
+      enabled: true
+      default-states:
+        # 站立时的基础待机动画；无需把 idle 再加入下面的微动作列表。
+        idle: idle
+        # 行走时的基础动画。
+        walk: walk
+        # 跳跃时的基础动画。
+        jump: jump
+        # 死亡时的基础动画。
+        death: death
+      # 按顺序分配递增优先级，模型中不存在的动画会被跳过。
+      # 两个模型没有 ribbon_sway、tail_hair_sway、blink，使用原有动画名即可。
+      loop-animations:
+        - pre_parallel1 # 飘带、刘海和侧发摆动，原动画周期为 4 秒。
+        - pre_parallel2 # 尾巴、长发和耳朵微动，原动画周期为 4.875 秒。
+        - pre_parallel3 # 眨眼、眉毛和眼部微动，原动画周期为 8 秒。
+        # 若希望帽子和花饰也变化，可取消下一行注释。
+        # - parallel0
+      random-gestures:
+        # 是否偶尔自动微笑或点头；默认关闭，三个循环微动作仍会运行。
+        enabled: false
+        # 从模型实际存在的候选动画中随机选择一个，播放一次。
+        animations:
+          - smile # 微笑。
+          - nod # 点头；播放期间暂停自动转头。
+        # 随机手势最短间隔：160 tick，在 20 TPS 时为 8 秒。
+        min-interval-ticks: 160
+        # 随机手势最长间隔：400 tick，在 20 TPS 时为 20 秒。
+        max-interval-ticks: 400
+    head-tracking:
+      # 平滑看向玩家；还须对每个 NPC 开启 turn_to_player 并设置距离。
+      enabled: true
+      runtime-head-bone:
+        # 补齐当前 NPC 实例的头部行为，不修改原蓝图或资源包。
+        enabled: true
+        # 按顺序选择第一个匹配的头部骨骼，忽略大小写，子骨骼继承其旋转。
+        bone-names:
+          - Head
+          - AllHead
+      # 头部相对于身体当前朝向的最大水平偏转，单位为度。
+      max-yaw-degrees: 65.0
+      # 头部最大抬头或低头角度，单位为度。
+      max-pitch-degrees: 35.0
+      # 头部水平转动的最高速度，单位为度/秒。
+      yaw-speed-degrees-per-second: 360.0
+      # 头部垂直转动的最高速度，单位为度/秒。
+      pitch-speed-degrees-per-second: 240.0
+      # 平滑响应系数：越大反应越快，越小转动越柔和。
+      response-per-second: 14.0
+      # 忽略小于此值的角度变化，减少轻微抖动，单位为度。
+      dead-zone-degrees: 0.25
+      # 新玩家距离小于当前目标距离的 80% 时，才考虑切换目标。
+      switch-distance-ratio: 0.8
+      # 切换目标前至少保持当前有效目标多久，单位为秒。
+      minimum-target-hold-seconds: 0.75
+      # 目标消失后等待多久再让头部回正，单位为秒。
+      lost-target-grace-seconds: 0.2
+      # 当前目标可在基础追踪范围外额外停留 15%，减少范围边缘闪切。
+      exit-range-multiplier: 1.15
+    body-follow:
+      # 开启后，头先转动，身体随后平滑跟上；关闭则保持身体当前朝向。
+      enabled: true
+      # 头部相对肩膀偏转达到此角度后开始计时，单位为度。
+      # 起转角度不能超过头部最大水平偏转，超出时插件会自动限制。
+      start-angle-degrees: 35.0
+      # 开始跟随后，头身角度差缩小到此值时停止，单位为度。
+      stop-angle-degrees: 2.0
+      # 头部持续超过起转角度多久才开始转身，单位为秒。
+      delay-seconds: 0.15
+      # 身体水平转动的最高速度，单位为度/秒。
+      yaw-speed-degrees-per-second: 150.0
+      # 身体平滑响应系数：越大越快，越小越柔和。
+      response-per-second: 8.0
+      # 手动坐下、趴下等姿态期间暂停转身；头部仍可按设置追踪玩家。
+      pause-during-pose: true
+    animations:
+      # 动画进入时的混合时间，单位为秒；0.05 秒约为一个服务端 tick。
+      blend-in-seconds: 0.05
+      # 动画退出时的混合时间，单位为秒。
+      blend-out-seconds: 0.05
+      # 基础动画、循环微动作和姿态的速度倍率，1.0 为原速。
+      speed: 1.0
+      # 普通手势的速度倍率，1.35 比原速快 35%。
+      gesture-speed: 1.35
+      # 这些动作视为姿态；配合 --loop 时保持最后一帧，直到手动切换。
+      # 两个模型没有 climb_idle，改用实际存在的趴下和攀爬待机动画。
+      # 三个微动作占用优先级 1~3，普通手势为 4，姿态为 5。
+      pose-animations:
+        - crouch_idle # 潜行待机。
+        - sneaking # 潜行待机的原始名称。
+        - sit # 坐下。
+        - sleep # 原始睡眠姿态。
+        - bed_sleep # 床上睡眠姿态。
+        - crawl_idle # 趴下待机。
+        - climbing # 趴下待机的原始名称。
+        - ladder_stillness # 攀爬静止姿态。
+      # 这些手动动作播放时暂停叠加玩家视线追踪，避免与动作冲突。
+      head-tracking-pause-animations:
+        - sleep
+        - bed_sleep
+        - nod
+        - talk
+        - wave
+      # 手动姿态期间暂停随机手势；常驻的循环微动作仍由优先级控制。
+      pause-random-gestures-during-pose: true
