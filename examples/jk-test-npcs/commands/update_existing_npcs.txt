@@ -1,4 +1,4 @@
-# 替换 FancyNpcsModel 1.3.2 并重启后执行以下指令，不要重跑创建文件。
+# 替换 FancyNpcsModel 1.3.3 并重启后执行以下指令，不要重跑创建文件。
 # 使用原 ysm_01_jk、ysm_02_jk，不需要修改模型或更新资源包。
 /fancynpcsmodel config reload
 /npc custom_model test_jk_01 me:ysm_01_jk

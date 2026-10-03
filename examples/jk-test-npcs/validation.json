@@ -1,8 +1,8 @@
 {
-  "package": "FancyNpcs-JK-TestNPCs-1.3.2-config-v2",
+  "package": "FancyNpcs-JK-TestNPCs-1.3.3-config-v2",
   "fancynpcs_version": "2.12.2-simmc-me.1",
-  "fancynpcsmodel_version": "1.3.2-simmc-me.1",
-  "yaml_keys_validated": 40,
+  "fancynpcsmodel_version": "1.3.3-simmc-me.1",
+  "yaml_keys_validated": 44,
   "npc_checks": [
     {
       "npc": "test_jk_01",
@@ -32,12 +32,12 @@
     "commands/create_test_jk_02.txt": "edcecabe85e037fe00f06db39149715089537ec6c86d2e29a4985b090fe63173",
     "commands/debug_test_jk_01.txt": "99693e2869bd3fe2d029469f1cbaa204ed0dfb630d6320410f1ebf30918b5c02",
     "commands/debug_test_jk_02.txt": "81fcae5c84b27ea1d1d6600184500c3f26a62b4f35e912954427cee6d720c206",
-    "commands/update_existing_npcs.txt": "e4a5abfab305abfe2e854880971565452ae3fc87e836e369c86417e2d591c169",
-    "plugins/FancyNpcsModel/config.yml": "c55253df7674ebbb630a5e186c7909862c9545fce1f05e285cf33a00286a3f8a",
-    "README.md": "5fa33e818a6f51dc6ba5195a1c3bbe277c4c0303165d1b0f68f22d85eacf6756"
+    "commands/update_existing_npcs.txt": "b866c3d826e127e06abd3f5bb3e8c9de11d1794b344cd8ef4c2e5708a7d18854",
+    "plugins/FancyNpcsModel/config.yml": "e97bb6527c733a13f580558aece37b35b21de4987a4ca0489c27bab38e614994",
+    "README.md": "248970474d7099c99531b671e0f81bb2539bcb6d9f27e723b752e3b8fc16b3ae"
   },
   "localhost_bone_probe": {
-    "addon_version": "1.3.2-simmc-me.1",
+    "addon_version": "1.3.3-simmc-me.1",
     "idle_enabled": true,
     "configured_loops": [
       "pre_parallel1",
@@ -48,36 +48,63 @@
     "probe_ysm_01_jk": {
       "active_head_behavior_bones": 1,
       "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+      "hitbox_eye_height": 1.44,
+      "model_scale_y": 0.9,
+      "blueprint_bones": {
+        "Head": [
+          -0.0,
+          1.98125,
+          -0.0
+        ],
+        "AllHead": [
+          -0.0,
+          1.91875,
+          -0.0
+        ],
+        "Eyes": [
+          -0.0,
+          2.09875,
+          -0.0
+        ]
+      },
+      "gaze": {
+        "visual_eye_height": 1.8888750529587242,
+        "legacy_eye_height": 1.2959999656677184,
+        "standing_player_old_pitch": -6.164052963256836,
+        "standing_player_fixed_pitch": 5.121451377868652,
+        "same_eye_level_pitch": 0.0,
+        "synthetic_targets_verified": true
+      },
       "blueprint_cache_unchanged": true,
       "layers": {
         "pre_parallel1": {
-          "begin_time": 0.65,
-          "end_time": 2.2499999999999623
+          "begin_time": 0.5499999999999999,
+          "end_time": 1.8999999999999628
         },
         "pre_parallel2": {
-          "begin_time": 0.65,
-          "end_time": 1.0499999999999488
+          "begin_time": 0.5499999999999999,
+          "end_time": 0.6999999999999484
         },
         "pre_parallel3": {
-          "begin_time": 0.65,
-          "end_time": 6.4499999999999265
+          "begin_time": 0.5499999999999999,
+          "end_time": 6.099999999999928
         }
       },
       "bone_motion": {
         "Bangs": {
-          "max_rotation_degrees": 4.8095373303227875
+          "max_rotation_degrees": 4.631411512195083
         },
         "Tail": {
-          "max_rotation_degrees": 23.284277899864037
+          "max_rotation_degrees": 24.670937377273095
         },
         "Tail2": {
-          "max_rotation_degrees": 39.50677678020487
+          "max_rotation_degrees": 39.020229470769266
         },
         "Left_ear": {
           "max_rotation_degrees": 23.749918475420436
         },
         "Right_ear": {
-          "max_rotation_degrees": 19.0113593995829
+          "max_rotation_degrees": 14.238533981156221
         }
       },
       "effective_pitch_down": 24.805058,
@@ -94,36 +121,63 @@
     "probe_ysm_02_jk": {
       "active_head_behavior_bones": 1,
       "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+      "hitbox_eye_height": 1.44,
+      "model_scale_y": 0.9,
+      "blueprint_bones": {
+        "Head": [
+          -0.0,
+          1.98125,
+          -0.0
+        ],
+        "AllHead": [
+          -0.0,
+          1.91875,
+          -0.0
+        ],
+        "Eyes": [
+          -0.0,
+          2.10625,
+          -0.0
+        ]
+      },
+      "gaze": {
+        "visual_eye_height": 1.8956249926984299,
+        "legacy_eye_height": 1.2959999656677184,
+        "standing_player_old_pitch": -6.164052963256836,
+        "standing_player_fixed_pitch": 5.249312877655029,
+        "same_eye_level_pitch": 0.0,
+        "synthetic_targets_verified": true
+      },
       "blueprint_cache_unchanged": true,
       "layers": {
         "pre_parallel1": {
-          "begin_time": 0.65,
-          "end_time": 2.2499999999999623
+          "begin_time": 0.5499999999999999,
+          "end_time": 1.8999999999999628
         },
         "pre_parallel2": {
-          "begin_time": 0.65,
-          "end_time": 1.0499999999999488
+          "begin_time": 0.5499999999999999,
+          "end_time": 0.6999999999999484
         },
         "pre_parallel3": {
-          "begin_time": 0.65,
-          "end_time": 6.4499999999999265
+          "begin_time": 0.5499999999999999,
+          "end_time": 6.099999999999928
         }
       },
       "bone_motion": {
         "Bangs": {
-          "max_rotation_degrees": 4.8095373303227875
+          "max_rotation_degrees": 4.631411512195083
         },
         "Tail": {
-          "max_rotation_degrees": 23.284277899864037
+          "max_rotation_degrees": 24.670937377273095
         },
         "Tail2": {
-          "max_rotation_degrees": 39.50677678020487
+          "max_rotation_degrees": 39.020229470769266
         },
         "Left_ear": {
           "max_rotation_degrees": 23.749918475420436
         },
         "Right_ear": {
-          "max_rotation_degrees": 19.0113593995829
+          "max_rotation_degrees": 14.238533981156221
         }
       },
       "effective_pitch_down": 24.805058,

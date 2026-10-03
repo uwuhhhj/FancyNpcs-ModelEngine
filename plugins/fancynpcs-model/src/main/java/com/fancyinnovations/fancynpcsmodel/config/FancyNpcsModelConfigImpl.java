@@ -6,6 +6,7 @@ import com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin;
 import com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationSettings;
 import com.fancyinnovations.fancynpcsmodel.providers.modelengine.SmoothHeadTracking;
 import com.fancyinnovations.fancynpcsmodel.providers.modelengine.RuntimeHeadBinding;
+import com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelGazeOrigin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,14 @@ public class FancyNpcsModelConfigImpl {
                 "模型没有头部行为时，给当前 NPC 的骨骼补上头部追踪；不会修改蓝图或资源包。");
         field("head-tracking.runtime-head-bone.bone-names", List.of("Head", "AllHead"), List.class,
                 "按顺序匹配第一个头部骨骼，忽略大小写；头发、耳朵等子骨骼继承旋转。");
+        field("head-tracking.eye-height.bone-names", List.of("Eyes", "Eye", "Head"), List.class,
+                "按顺序读取骨骼的静态眼高，忽略大小写；未匹配时回退到碰撞箱眼高，不修改碰撞箱。");
+        number("head-tracking.eye-height.fixed-height-blocks", -1,
+                "1 倍模型的固定眼高，单位为格；-1 自动读取骨骼，非负值覆盖自动结果，再乘 NPC 缩放。");
+        number("head-tracking.eye-height.offset-blocks", 0,
+                "1 倍模型的眼高修正，正值提高视线起点；修正量与 NPC 缩放一起变化。");
+        number("head-tracking.pitch-offset-degrees", 0,
+                "追踪时的俯仰修正角度；正值更低头，负值更抬头，仍受最大俯仰角限制。");
         number("head-tracking.max-yaw-degrees", 65, "头部相对身体当前朝向的最大水平偏转，单位为度。");
         number("head-tracking.max-pitch-degrees", 35, "最大抬头或低头角度，单位为度。");
         number("head-tracking.yaw-speed-degrees-per-second", 180, "头部水平转动的最高速度，单位为度/秒。");
@@ -143,7 +152,11 @@ public class FancyNpcsModelConfigImpl {
                 value("head-tracking.exit-range-multiplier", 1, 3, 1.15), body);
         motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation,
                 new RuntimeHeadBinding.Settings(bool("head-tracking.runtime-head-bone.enabled"),
-                        names("head-tracking.runtime-head-bone.bone-names")));
+                        names("head-tracking.runtime-head-bone.bone-names")),
+                new ModelGazeOrigin.Settings(names("head-tracking.eye-height.bone-names"),
+                        value("head-tracking.eye-height.fixed-height-blocks", -1, 128, -1),
+                        value("head-tracking.eye-height.offset-blocks", -128, 128, 0),
+                        value("head-tracking.pitch-offset-degrees", -45, 45, 0)));
     }
 
     private <T> void field(String path, T defaultValue, Class<?> type, String description) {
@@ -174,7 +187,8 @@ public class FancyNpcsModelConfigImpl {
 
     public MotionSettings getMotionSettings() { return motionSettings; }
     public record MotionSettings(boolean headTrackingEnabled, SmoothHeadTracking.Config headTracking,
-                                 ModelEngineAnimationSettings animations, RuntimeHeadBinding.Settings headBinding) { }
+                                 ModelEngineAnimationSettings animations, RuntimeHeadBinding.Settings headBinding,
+                                 ModelGazeOrigin.Settings gazeOrigin) { }
 
     public Config getConfig() {
         return config;

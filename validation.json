@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "generated_utc": "2026-10-03T15:26:49.115732+00:00",
+  "generated_utc": "2026-10-03T16:03:33.266459+00:00",
   "source_base_commit": "d71e17d5aab44218b45c156af6bfa8c9cdd57465",
   "authors": [
     "OliverSchlueter",
@@ -14,7 +14,7 @@
   },
   "versions": {
     "FancyNpcs": "2.12.2-simmc-me.1",
-    "FancyNpcsModel": "1.3.2-simmc-me.1"
+    "FancyNpcsModel": "1.3.3-simmc-me.1"
   },
   "upstream_release": {
     "version": "2.12.1",
@@ -43,11 +43,18 @@
   },
   "unit_tests": {
     "result": "passed",
-    "total": 42,
+    "total": 51,
     "suites": [
       {
         "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelEngineAnimationControllerTest",
         "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.fancyinnovations.fancynpcsmodel.providers.modelengine.ModelGazeOriginTest",
+        "tests": 9,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -180,7 +187,7 @@
       "players": 0
     },
     "fixed": {
-      "addon_version": "1.3.2-simmc-me.1",
+      "addon_version": "1.3.3-simmc-me.1",
       "idle_enabled": true,
       "configured_loops": [
         "pre_parallel1",
@@ -191,36 +198,63 @@
       "probe_ysm_01_jk": {
         "active_head_behavior_bones": 1,
         "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "hitbox_eye_height": 1.44,
+        "model_scale_y": 0.9,
+        "blueprint_bones": {
+          "Head": [
+            -0.0,
+            1.98125,
+            -0.0
+          ],
+          "AllHead": [
+            -0.0,
+            1.91875,
+            -0.0
+          ],
+          "Eyes": [
+            -0.0,
+            2.09875,
+            -0.0
+          ]
+        },
+        "gaze": {
+          "visual_eye_height": 1.8888750529587242,
+          "legacy_eye_height": 1.2959999656677184,
+          "standing_player_old_pitch": -6.164052963256836,
+          "standing_player_fixed_pitch": 5.121451377868652,
+          "same_eye_level_pitch": 0.0,
+          "synthetic_targets_verified": true
+        },
         "blueprint_cache_unchanged": true,
         "layers": {
           "pre_parallel1": {
-            "begin_time": 0.65,
-            "end_time": 2.2499999999999623
+            "begin_time": 0.5499999999999999,
+            "end_time": 1.8999999999999628
           },
           "pre_parallel2": {
-            "begin_time": 0.65,
-            "end_time": 1.0499999999999488
+            "begin_time": 0.5499999999999999,
+            "end_time": 0.6999999999999484
           },
           "pre_parallel3": {
-            "begin_time": 0.65,
-            "end_time": 6.4499999999999265
+            "begin_time": 0.5499999999999999,
+            "end_time": 6.099999999999928
           }
         },
         "bone_motion": {
           "Bangs": {
-            "max_rotation_degrees": 4.8095373303227875
+            "max_rotation_degrees": 4.631411512195083
           },
           "Tail": {
-            "max_rotation_degrees": 23.284277899864037
+            "max_rotation_degrees": 24.670937377273095
           },
           "Tail2": {
-            "max_rotation_degrees": 39.50677678020487
+            "max_rotation_degrees": 39.020229470769266
           },
           "Left_ear": {
             "max_rotation_degrees": 23.749918475420436
           },
           "Right_ear": {
-            "max_rotation_degrees": 19.0113593995829
+            "max_rotation_degrees": 14.238533981156221
           }
         },
         "effective_pitch_down": 24.805058,
@@ -237,36 +271,63 @@
       "probe_ysm_02_jk": {
         "active_head_behavior_bones": 1,
         "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "hitbox_eye_height": 1.44,
+        "model_scale_y": 0.9,
+        "blueprint_bones": {
+          "Head": [
+            -0.0,
+            1.98125,
+            -0.0
+          ],
+          "AllHead": [
+            -0.0,
+            1.91875,
+            -0.0
+          ],
+          "Eyes": [
+            -0.0,
+            2.10625,
+            -0.0
+          ]
+        },
+        "gaze": {
+          "visual_eye_height": 1.8956249926984299,
+          "legacy_eye_height": 1.2959999656677184,
+          "standing_player_old_pitch": -6.164052963256836,
+          "standing_player_fixed_pitch": 5.249312877655029,
+          "same_eye_level_pitch": 0.0,
+          "synthetic_targets_verified": true
+        },
         "blueprint_cache_unchanged": true,
         "layers": {
           "pre_parallel1": {
-            "begin_time": 0.65,
-            "end_time": 2.2499999999999623
+            "begin_time": 0.5499999999999999,
+            "end_time": 1.8999999999999628
           },
           "pre_parallel2": {
-            "begin_time": 0.65,
-            "end_time": 1.0499999999999488
+            "begin_time": 0.5499999999999999,
+            "end_time": 0.6999999999999484
           },
           "pre_parallel3": {
-            "begin_time": 0.65,
-            "end_time": 6.4499999999999265
+            "begin_time": 0.5499999999999999,
+            "end_time": 6.099999999999928
           }
         },
         "bone_motion": {
           "Bangs": {
-            "max_rotation_degrees": 4.8095373303227875
+            "max_rotation_degrees": 4.631411512195083
           },
           "Tail": {
-            "max_rotation_degrees": 23.284277899864037
+            "max_rotation_degrees": 24.670937377273095
           },
           "Tail2": {
-            "max_rotation_degrees": 39.50677678020487
+            "max_rotation_degrees": 39.020229470769266
           },
           "Left_ear": {
             "max_rotation_degrees": 23.749918475420436
           },
           "Right_ear": {
-            "max_rotation_degrees": 19.0113593995829
+            "max_rotation_degrees": 14.238533981156221
           }
         },
         "effective_pitch_down": 24.805058,
@@ -287,6 +348,111 @@
     "dedicated_blueprints_generated": false,
     "resource_pack_changes_required": false
   },
+  "gaze_origin_integration": {
+    "result": "passed",
+    "target_type": "Synthetic standing/same-eye-level locations using the same ModelGazeOrigin helper as the production provider; no real player connection",
+    "baseline_1_3_2_inspection": {
+      "addon_version": "1.3.2-simmc-me.1",
+      "idle_enabled": true,
+      "configured_loops": [
+        "pre_parallel1",
+        "pre_parallel2",
+        "pre_parallel3"
+      ],
+      "bone_evaluation": "Explicit parent-before-child bone ticks for snapshots; ME skips transforms without real viewers.",
+      "probe_ysm_01_jk": {
+        "active_head_behavior_bones": 1,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "hitbox_eye_height": 1.44,
+        "model_scale_y": 0.9,
+        "blueprint_bones": {
+          "Head": [
+            -0.0,
+            1.98125,
+            -0.0
+          ],
+          "AllHead": [
+            -0.0,
+            1.91875,
+            -0.0
+          ],
+          "Eyes": [
+            -0.0,
+            2.09875,
+            -0.0
+          ]
+        },
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.65
+          },
+          "pre_parallel2": {
+            "begin_time": 0.65
+          },
+          "pre_parallel3": {
+            "begin_time": 0.65
+          }
+        }
+      },
+      "probe_ysm_02_jk": {
+        "active_head_behavior_bones": 1,
+        "head_behavior_class": "com.ticxo.modelengine.core.model.bone.behavior.HeadImpl",
+        "hitbox_eye_height": 1.44,
+        "model_scale_y": 0.9,
+        "blueprint_bones": {
+          "Head": [
+            -0.0,
+            1.98125,
+            -0.0
+          ],
+          "AllHead": [
+            -0.0,
+            1.91875,
+            -0.0
+          ],
+          "Eyes": [
+            -0.0,
+            2.10625,
+            -0.0
+          ]
+        },
+        "blueprint_cache_unchanged": true,
+        "layers": {
+          "pre_parallel1": {
+            "begin_time": 0.65
+          },
+          "pre_parallel2": {
+            "begin_time": 0.65
+          },
+          "pre_parallel3": {
+            "begin_time": 0.65
+          }
+        }
+      },
+      "passed": true,
+      "message": "Gaze origin inspection only",
+      "players": 0
+    },
+    "checks": {
+      "probe_ysm_01_jk": {
+        "visual_eye_height": 1.8888750529587242,
+        "legacy_eye_height": 1.2959999656677184,
+        "standing_player_old_pitch": -6.164052963256836,
+        "standing_player_fixed_pitch": 5.121451377868652,
+        "same_eye_level_pitch": 0.0,
+        "synthetic_targets_verified": true
+      },
+      "probe_ysm_02_jk": {
+        "visual_eye_height": 1.8956249926984299,
+        "legacy_eye_height": 1.2959999656677184,
+        "standing_player_old_pitch": -6.164052963256836,
+        "standing_player_fixed_pitch": 5.249312877655029,
+        "same_eye_level_pitch": 0.0,
+        "synthetic_targets_verified": true
+      }
+    }
+  },
   "not_verified": [
     "Client resource-pack rendering and motion quality",
     "Actual player right/left-click packet execution and dialog delivery",
@@ -295,7 +461,7 @@
     "BetterModel optional provider runtime",
     "26.x runtime (upstream core implementations retained)",
     "Folia model integration (unsupported; upstream core Folia support retained)",
-    "Actual player eye targeting in the 1.3.2 head binding probe (placement pitch and bone rotation checked instead)"
+    "Actual player eye targeting and client visual alignment (synthetic target geometry and server bones checked instead)"
   ],
   "known_limits": [
     "A single ME dummy shares head direction among observers.",
@@ -326,17 +492,17 @@
       "external_model_classes": "not_checked"
     },
     {
-      "filename": "FancyNpcsModel-1.3.2-simmc-me.1.jar",
+      "filename": "FancyNpcsModel-1.3.3-simmc-me.1.jar",
       "name": "FancyNpcsModel",
-      "version": "1.3.2-simmc-me.1",
+      "version": "1.3.3-simmc-me.1",
       "api_version": "1.21.11",
-      "sha256": "344ee30f10e6b6fb398c76d633068e0af71056992ebc73ce64e710d67f5c6d3c",
-      "bytes": 618802,
+      "sha256": "dd11d304d3ceab8e3297167f52b77f632388ed762e3c8204992d95994ccf9801",
+      "bytes": 625295,
       "descriptors": {
         "paper-plugin.yml": {
           "name": "FancyNpcsModel",
           "main": "com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin",
-          "version": "1.3.2-simmc-me.1",
+          "version": "1.3.3-simmc-me.1",
           "api-version": "1.21.11",
           "authors": [
             "OliverSchlueter",

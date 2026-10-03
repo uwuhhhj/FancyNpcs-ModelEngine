@@ -323,17 +323,17 @@ public final class ModelEngineProvider implements ModelProvider {
         if (turnDistance < 0) turnDistance = FancyNpcsPlugin.get().getFancyNpcConfig().getTurnToPlayerDistance();
         boolean track = settings.headTrackingEnabled() && applied.npc.getData().isTurnToPlayer()
                 && !applied.animations.isHeadTrackingPaused();
-        Location head = target.clone().add(0, eyeHeight, 0);
+        // Collision eye height can be a generic ME default, far below the
+        // rendered eyes. Scale the visual bone height exactly once instead.
+        double gazeHeight = ModelGazeOrigin.eyeHeight(applied.model.getBlueprint(), applied.model.getScale().y(), settings.gazeOrigin());
+        Location head = target.clone().add(0, gazeHeight, 0);
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!visibleTo(applied.npc, player)) continue;
             desired.add(player.getUniqueId());
             double distance = player.getLocation().distanceSquared(target);
             if (track) {
-                Vector direction = player.getEyeLocation().toVector().subtract(head.toVector());
-                if (direction.lengthSquared() > .000001) {
-                    Location facing = head.clone().setDirection(direction);
-                    candidates.add(new SmoothHeadTracking.Candidate(player.getUniqueId(), distance, facing.getYaw(), facing.getPitch()));
-                }
+                ModelGazeOrigin.lookAt(head, player.getEyeLocation(), settings.gazeOrigin()).ifPresent(facing ->
+                        candidates.add(new SmoothHeadTracking.Candidate(player.getUniqueId(), distance, facing.yaw(), facing.pitch())));
             }
         }
         for (UUID previous : Set.copyOf(applied.viewers)) {

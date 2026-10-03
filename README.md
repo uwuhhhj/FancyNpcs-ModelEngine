@@ -1,12 +1,12 @@
 # FancyNpcs-ModelEngine
 
-为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.2-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
+为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.3-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
 
 基于官方稳定版 [FancyNpcs 2.12.1](https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1)，源码基线为 [`d71e17d5`](https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465)，模型扩展参考上游 [PR #315](https://github.com/FancyInnovations/FancyPlugins/pull/315)。这是独立维护的非官方定制版，版本号为本项目递增。
 
 主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。验证环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**；26.x 的 ME 集成未验证，本 addon 不支持 Folia。
 
-本版构建与 **42 项单元测试**通过；头部先转、身体延迟跟随、角度跨界、限速、姿态暂停及参数重载有独立单元测试。本次另用原 `ysm_01_jk`、`ysm_02_jk` 验证运行时头部绑定与并行微动作，报告见 [validation.json](validation.json)。实际玩家观看/点击、资源包显示和多人可见性仍需验证。
+本版构建与 **51 项单元测试**通过；覆盖平滑追踪、身体跟随、动画分层以及视线高度、缩放与俯仰微调。本次另用原 `ysm_01_jk`、`ysm_02_jk` 验证眼高、运行时头部绑定与并行微动作，报告见 [validation.json](validation.json)。实际玩家观看/点击、资源包显示和多人可见性仍需验证。
 
 ## 安装与使用
 
@@ -16,7 +16,7 @@
 2. 将两个新 JAR 放入服务器 `plugins/`，另行安装 ModelEngine R4.1.1。仅使用 ME 模型时不需要 BetterModel 或 MythicMobs。
 3. 用 Java 25 启动 Paper 1.21.11。模型继续放在 `plugins/ModelEngine/blueprints/npc/`；已有模型与 ME 资源包可以继续使用，首次导入才需 `/meg reload models` 并更新资源包。
 
-从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.2-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。
+从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.3-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。
 
 原 FancyNpcs 命令保持可用。下面以 OP 创建测试 NPC；模型需要包含示例使用的 `wave`、`sit`、`idle` 动画：
 
@@ -38,6 +38,10 @@
 模型生命周期、缩放、位置、可见性和点击校验接入 FancyNpcs。ME 模型的朝向由观察者共享，原生 NPC 初次隐身同步前可能短暂闪现。
 
 ### 自然待机与平滑看向玩家
+
+`1.3.3` 修正视线偏高：采用 `Eyes`、`Eye`、`Head` 骨骼的初始高度计算视线起点，未匹配时回退到碰撞箱眼高。两个原模型在 0.9 倍下眼高约为 1.89 格，旧碰撞箱参考点仅 1.30 格，会错误地向上看。视觉眼高随模型缩放，不改动碰撞箱，也不读取已被俯仰旋转的眼睛位置。
+
+新参数位于 `settings.modelengine.head-tracking`：`eye-height.bone-names` 指定眼骨候选；`eye-height.fixed-height-blocks: -1` 自动读取，非负值指定 1 倍模型的眼高；`eye-height.offset-blocks: 0` 修正该高度，随缩放变化；`pitch-offset-degrees: 0` 微调追踪角度，正值更低头，负值更抬头。若修正后仍略看高，可尝试 `2` 或 `3` 度。四个参数均支持 `/fancynpcsmodel config reload`，不重建模型，最大俯仰角仍生效。
 
 `1.3.2` 为没有 h_/hi_ 头部行为的模型补齐运行时绑定：默认按顺序查找 `Head`、`AllHead`，替换当前实例的隐藏 HEAD 占位，添加局部头部旋转并刷新子骨骼继承，头发、耳朵等子骨骼保留原动画。已有显式头部行为的模型沿用原设置。无需修改 `.bbmodel` 或重新打包资源包。
 
