@@ -1,15 +1,15 @@
 # 两个酒狐模型的测试 NPC
 
-适用于 FancyNpcs 2.12.2-simmc-me.1、FancyNpcsModel 1.3.3-simmc-me.1 和 ModelEngine R4.1.1。此目录包含中文配置和指令，继续使用原模型，不生成专用蓝图。
+适用于 FancyNpcs 2.12.2-simmc-me.1、FancyNpcsModel 1.3.4-simmc-me.1 和 ModelEngine R4.1.1。此目录包含中文配置和指令，继续使用原模型，不生成专用蓝图。
 
-源码新增的 `viewer-protection` 尚未发布：默认每个 NPC 前 10 位有效观看者接收模型，超额玩家保留基础 NPC，退出后按等待顺序补位。现有 1.3.3 发行包不会因添加此配置而获得保护功能。
+`1.3.4` 新增 `viewer-protection`：默认每个 NPC 前 10 位有效观看者接收模型，超额玩家保留基础 NPC，退出后按等待顺序补位。需使用本次构建的新 JAR；现有 1.3.3 发行包不会因添加此配置而获得保护功能。此目录的 `validation.json` 保留旧版模型验证记录。
 
 | NPC 名称 | ModelEngine 模型 ID | 默认大小 |
 | --- | --- | --- |
 | `test_jk_01` | `ysm_01_jk` | 0.9 倍 |
 | `test_jk_02` | `ysm_02_jk` | 0.9 倍 |
 
-1. 替换 FancyNpcsModel 为 1.3.3 后重启，保留 FancyNpcs 核心和 NPC 数据。使用已加载的原模型，不需要重新打资源包。
+1. 替换 FancyNpcsModel 为 1.3.4 后重启，保留 FancyNpcs 核心和 NPC 数据。使用已加载的原模型，不需要重新打资源包。
 2. 合并本包 `plugins/FancyNpcsModel/config.yml`，执行 `/fancynpcsmodel config reload`。配置影响全部 ME NPC，不控制 MEPlayerActions 的玩家伪装。
 3. 已有两个测试 NPC 时，按 `commands/update_existing_npcs.txt` 恢复待机。首次创建则以 OP 站到两个位置，分别逐条运行两个 create 文件；确保 FancyNpcs 的 `register_commands: true`。
 4. 右键发送台词并挥手，左键点头，点击冷却为 1 秒。调试文件按需单条执行，`idle --loop` 恢复自动待机。
