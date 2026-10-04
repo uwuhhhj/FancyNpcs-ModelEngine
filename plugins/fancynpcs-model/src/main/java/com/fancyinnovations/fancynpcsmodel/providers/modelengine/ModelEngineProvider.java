@@ -55,6 +55,7 @@ public final class ModelEngineProvider implements ModelProvider {
     private final Map<Npc, Request> pending = new ConcurrentHashMap<>();
     private final Map<Npc, Entity> hiddenNpcs = new HashMap<>();
     private final Map<Interaction, Integer> interactions = new HashMap<>();
+    private final ModelRefreshCadence refreshCadence = new ModelRefreshCadence();
     private final BukkitTask tickTask;
     private volatile boolean closed;
 
@@ -262,9 +263,17 @@ public final class ModelEngineProvider implements ModelProvider {
     private void tick() {
         if (closed) return;
         int tick = Bukkit.getCurrentTick();
+        boolean refresh = refreshCadence.shouldRefresh(tick,
+                FancyNpcsPlugin.get().getFancyNpcConfig().getNpcUpdateVisibilityInterval());
         if (tick % 20 == 0) interactions.entrySet().removeIf(entry -> tick - entry.getValue() > 40);
         for (AppliedModel applied : List.copyOf(appliedModels.values())) {
             try {
+                if (!refresh) {
+                    // Keep rotation/animation smooth without searching players,
+                    // copying all NPCs, or rebuilding observer and hitbox state.
+                    if (healthy(applied)) updateMotion(applied, List.of(), false);
+                    continue;
+                }
                 if (!isCurrentNpc(applied.npc) || !stillRequested(applied)) {
                     discard(applied, true);
                     continue;
@@ -297,9 +306,6 @@ public final class ModelEngineProvider implements ModelProvider {
         requireMainThread();
         Location target = applied.npc.getData().getLocation().clone();
         FancyNpcsModelConfigImpl.MotionSettings settings = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings();
-        applied.headTracking.reconfigure(settings.headTracking());
-        applied.animations.reconfigure(settings.animations());
-        applied.animations.update(Bukkit.getCurrentTick());
         double scale = scale(applied.npc);
         if (Double.compare(scale, applied.scale) != 0) {
             applied.model.setScale(scale);
@@ -319,8 +325,6 @@ public final class ModelEngineProvider implements ModelProvider {
         applied.location = target;
         Set<UUID> desired = new HashSet<>();
         List<SmoothHeadTracking.Candidate> candidates = new ArrayList<>();
-        int turnDistance = applied.npc.getData().getTurnToPlayerDistance();
-        if (turnDistance < 0) turnDistance = FancyNpcsPlugin.get().getFancyNpcConfig().getTurnToPlayerDistance();
         boolean track = settings.headTrackingEnabled() && applied.npc.getData().isTurnToPlayer()
                 && !applied.animations.isHeadTrackingPaused();
         // Collision eye height can be a generic ME default, far below the
@@ -344,13 +348,25 @@ public final class ModelEngineProvider implements ModelProvider {
         }
         applied.viewers.clear();
         applied.viewers.addAll(desired);
-        SmoothHeadTracking.Pose facing = applied.headTracking.tick(target.getYaw(), target.getPitch(),
+        updateMotion(applied, candidates, true);
+        hideNpc(applied.npc);
+    }
+
+    private void updateMotion(AppliedModel applied, List<SmoothHeadTracking.Candidate> candidates, boolean refreshTarget) {
+        FancyNpcsModelConfigImpl.MotionSettings settings = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getMotionSettings();
+        applied.headTracking.reconfigure(settings.headTracking());
+        applied.animations.reconfigure(settings.animations());
+        applied.animations.update(Bukkit.getCurrentTick());
+        int turnDistance = applied.npc.getData().getTurnToPlayerDistance();
+        if (turnDistance < 0) turnDistance = FancyNpcsPlugin.get().getFancyNpcConfig().getTurnToPlayerDistance();
+        boolean track = settings.headTrackingEnabled() && applied.npc.getData().isTurnToPlayer()
+                && !applied.animations.isHeadTrackingPaused();
+        SmoothHeadTracking.Pose facing = applied.headTracking.tick(applied.location.getYaw(), applied.location.getPitch(),
                 track ? Math.max(0, turnDistance) : 0, candidates, .05,
-                !settings.headTracking().bodyFollow().pauseDuringPose() || !applied.animations.isPoseActive());
+                !settings.headTracking().bodyFollow().pauseDuringPose() || !applied.animations.isPoseActive(), refreshTarget);
         applied.modeled.setYBodyRot((float) facing.bodyYaw());
         applied.modeled.setYHeadRot((float) facing.headYaw());
         applied.modeled.setXHeadRot((float) facing.headPitch());
-        hideNpc(applied.npc);
     }
 
     private boolean visibleTo(Npc npc, Player player) {

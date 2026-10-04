@@ -69,6 +69,12 @@ public final class SmoothHeadTracking {
     /** Held poses can allow head tracking while pausing whole-body rotation. */
     public Pose tick(double bodyYaw, double neutralPitch, double trackingRange,
                      Collection<Candidate> candidates, double elapsedSeconds, boolean allowBodyFollow) {
+        return tick(bodyYaw, neutralPitch, trackingRange, candidates, elapsedSeconds, allowBodyFollow, true);
+    }
+
+    /** Advance smoothing every tick; only sample players on a slow reconciliation tick. */
+    public Pose tick(double bodyYaw, double neutralPitch, double trackingRange,
+                     Collection<Candidate> candidates, double elapsedSeconds, boolean allowBodyFollow, boolean refreshTarget) {
         requireFinite(bodyYaw, "bodyYaw");
         requirePitch(neutralPitch, "neutralPitch");
         requireFinite(trackingRange, "trackingRange");
@@ -77,7 +83,9 @@ public final class SmoothHeadTracking {
         if (elapsedSeconds <= 0) throw new IllegalArgumentException("elapsedSeconds must be positive");
         Objects.requireNonNull(candidates, "candidates");
         // Reject bad samples before changing state, including on an empty range.
-        for (Candidate candidate : candidates) Objects.requireNonNull(candidate, "candidate");
+        if (refreshTarget) {
+            for (Candidate candidate : candidates) Objects.requireNonNull(candidate, "candidate");
+        }
         if (!initialized) reset(bodyYaw, neutralPitch);
         if (Math.abs(wrapDegrees(bodyYaw - placementYaw)) > 0.000001) {
             // Only an actual placement-orientation change resets the body.
@@ -89,8 +97,16 @@ public final class SmoothHeadTracking {
 
         if (trackingRange == 0) {
             clearTarget();
-        } else {
+        } else if (refreshTarget) {
             selectTarget(trackingRange, candidates, elapsedSeconds);
+        } else if (targetId != null) {
+            // Hold/grace durations still advance in real server ticks, rather
+            // than becoming 20 times longer when player sampling is throttled.
+            if (targetObserved) targetHoldSeconds += elapsedSeconds;
+            else {
+                missingSeconds += elapsedSeconds;
+                if (missingSeconds >= config.lostTargetGraceSeconds) clearTarget();
+            }
         }
 
         double wantedOffset = targetId == null ? 0 : desiredOffset();
