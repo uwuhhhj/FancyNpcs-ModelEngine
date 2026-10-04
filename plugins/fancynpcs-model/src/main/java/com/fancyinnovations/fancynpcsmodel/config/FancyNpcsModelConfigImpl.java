@@ -23,6 +23,7 @@ public class FancyNpcsModelConfigImpl {
 
     private Config config;
     private volatile MotionSettings motionSettings;
+    private volatile ViewerProtection viewerProtection = new ViewerProtection(true, 10);
     private static final String ME = "settings.modelengine.";
 
     public void init() {
@@ -55,6 +56,9 @@ public class FancyNpcsModelConfigImpl {
                 String.class
         ));
 
+        field("viewer-protection.enabled", true, Boolean.class, "限制每个 NPC 同时接收模型的玩家；超额玩家保留基础 NPC。");
+        field("viewer-protection.max-viewers-per-npc", 10, Integer.class,
+                "每个 NPC 的模型观看名额，默认 10；0 全部降级。保留先进入者，离开后按等待顺序补位。");
         field("head-tracking.enabled", true, Boolean.class, "在 NPC 开启 turn_to_player 时平滑看向玩家。");
         field("head-tracking.runtime-head-bone.enabled", true, Boolean.class,
                 "模型没有头部行为时，给当前 NPC 的骨骼补上头部追踪；不会修改蓝图或资源包。");
@@ -108,6 +112,8 @@ public class FancyNpcsModelConfigImpl {
 
     public void reload() {
         config.reload();
+        viewerProtection = new ViewerProtection(bool("viewer-protection.enabled"),
+                Math.max(0, integer("viewer-protection.max-viewers-per-npc")));
         double in = value("animations.blend-in-seconds", 0, 5, .05);
         double out = value("animations.blend-out-seconds", 0, 5, .05);
         double speed = value("animations.speed", .05, 10, 1);
@@ -186,6 +192,10 @@ public class FancyNpcsModelConfigImpl {
     }
 
     public MotionSettings getMotionSettings() { return motionSettings; }
+    public ViewerProtection getViewerProtection() { return viewerProtection; }
+    public record ViewerProtection(boolean enabled, int maxViewersPerNpc) {
+        public int capacity() { return enabled ? Math.max(0, maxViewersPerNpc) : Integer.MAX_VALUE; }
+    }
     public record MotionSettings(boolean headTrackingEnabled, SmoothHeadTracking.Config headTracking,
                                  ModelEngineAnimationSettings animations, RuntimeHeadBinding.Settings headBinding,
                                  ModelGazeOrigin.Settings gazeOrigin) { }

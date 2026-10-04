@@ -18,6 +18,8 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
     compileOnly(project(":plugins:fancynpcs-v2:fn-v2-api"))
+    // Provided by Paper; never shade a second copy of its networking classes.
+    compileOnly("io.netty:netty-transport:4.2.7.Final")
     compileOnly(files(rootProject.file(providers.gradleProperty("betterModelJar").getOrElse("deps/bettermodel-3.5.0-paper.jar"))))
     compileOnly(files(rootProject.file(providers.gradleProperty("modelEngineJar").getOrElse("deps/ModelEngine-R4.1.1.jar"))))
 
@@ -38,6 +40,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation(project(":plugins:fancynpcs-v2:fn-v2-api"))
+    testImplementation("io.netty:netty-transport:4.2.7.Final")
     testImplementation(files(rootProject.file(providers.gradleProperty("betterModelJar").getOrElse("deps/bettermodel-3.5.0-paper.jar"))))
     testImplementation(files(rootProject.file(providers.gradleProperty("modelEngineJar").getOrElse("deps/ModelEngine-R4.1.1.jar"))))
 }

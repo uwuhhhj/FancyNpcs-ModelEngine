@@ -11,6 +11,10 @@ settings:
   # 插件消息使用的语言文件；此处只汉化配置注释，沿用 default 语言文件。
   language: default
   modelengine:
+    viewer-protection:
+      # 每个 NPC 前 10 位有效观看者看模型，超额玩家看基础 NPC；退出后依次补位。
+      enabled: true
+      max-viewers-per-npc: 10
     idle:
       # 开启并行微动作层；关闭后也会停止随机手势，基础待机仍由 ME 管理。
       enabled: true

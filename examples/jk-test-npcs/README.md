@@ -2,6 +2,8 @@
 
 适用于 FancyNpcs 2.12.2-simmc-me.1、FancyNpcsModel 1.3.3-simmc-me.1 和 ModelEngine R4.1.1。此目录包含中文配置和指令，继续使用原模型，不生成专用蓝图。
 
+源码新增的 `viewer-protection` 尚未发布：默认每个 NPC 前 10 位有效观看者接收模型，超额玩家保留基础 NPC，退出后按等待顺序补位。现有 1.3.3 发行包不会因添加此配置而获得保护功能。
+
 | NPC 名称 | ModelEngine 模型 ID | 默认大小 |
 | --- | --- | --- |
 | `test_jk_01` | `ysm_01_jk` | 0.9 倍 |

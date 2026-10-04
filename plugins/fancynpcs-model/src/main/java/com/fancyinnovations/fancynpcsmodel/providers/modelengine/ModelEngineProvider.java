@@ -25,7 +25,6 @@ import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.IllegalPluginAccessException;
@@ -41,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -53,7 +53,9 @@ public final class ModelEngineProvider implements ModelProvider {
     private final Map<String, AppliedModel> appliedModels = new ConcurrentHashMap<>();
     private final Map<UUID, AppliedModel> dummyToNpc = new ConcurrentHashMap<>();
     private final Map<Npc, Request> pending = new ConcurrentHashMap<>();
-    private final Map<Npc, Entity> hiddenNpcs = new HashMap<>();
+    private final Map<Npc, Integer> hiddenNpcs = new HashMap<>();
+    private final Map<UUID, Set<AppliedModel>> awaitingVisibility = new HashMap<>();
+    private final PerPlayerNpcVisibility nativeVisibility;
     private final Map<Interaction, Integer> interactions = new HashMap<>();
     private final ModelRefreshCadence refreshCadence = new ModelRefreshCadence();
     private final BukkitTask tickTask;
@@ -74,6 +76,9 @@ public final class ModelEngineProvider implements ModelProvider {
 
     public ModelEngineProvider() {
         requireMainThread();
+        nativeVisibility = new PerPlayerNpcVisibility(failure ->
+                FancyNpcsModelPlugin.get().getFancyLogger().warn("Failed to hide a model viewer's native NPC; reverting to vanilla",
+                        ThrowableProperty.of(failure)), this::viewerVisibilityReady);
         tickTask = Bukkit.getScheduler().runTaskTimer(FancyNpcsModelPlugin.get(), this::tick, 1, 1);
     }
 
@@ -105,7 +110,6 @@ public final class ModelEngineProvider implements ModelProvider {
                 && healthy(current) && npc.getData().getLocation() != null
                 && current.location.getWorld() == npc.getData().getLocation().getWorld()
                 && ModelEngineAPI.getBlueprint(request.modelName) == current.model.getBlueprint()) {
-            hideNpc(npc);
             synchronize(current);
             return;
         }
@@ -157,11 +161,11 @@ public final class ModelEngineProvider implements ModelProvider {
             AppliedModel applied = new AppliedModel(npc, modelName, dummy, modeled, model, location.clone(), scale);
             appliedModels.put(npc.getData().getId(), applied);
             dummyToNpc.put(dummy.getUUID(), applied);
-            hideNpc(npc);
             synchronize(applied);
         } catch (RuntimeException | LinkageError failure) {
             AppliedModel published = appliedModels.get(npc.getData().getId());
             if (published != null && published.dummy == dummy) {
+                clearWaitingViewers(published);
                 appliedModels.remove(npc.getData().getId(), published);
                 dummyToNpc.remove(dummy.getUUID(), published);
             }
@@ -227,14 +231,22 @@ public final class ModelEngineProvider implements ModelProvider {
     }
 
     boolean mayInteract(Npc npc, Player player) {
+        return mayInteract(npc, player, true);
+    }
+
+    private boolean mayInteract(Npc npc, Player player, boolean modelHitbox) {
         requireMainThread();
         AppliedModel applied = appliedModels.get(npc.getData().getId());
         if (applied == null || applied.npc != npc || !isCurrentNpc(npc) || !healthy(applied)
                 || !stillRequested(applied) || !visibleTo(npc, player)) return false;
+        boolean seesModel = applied.viewers.contains(player.getUniqueId());
+        if (modelHitbox && !seesModel) return false;
         // R4.1.1 emits BaseEntityInteractEvent before the native reach test.
         AttributeInstance attribute = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
         double reach = attribute == null ? 3 : attribute.getValue();
-        BoundingBox box = applied.dummy.getBoundingBox();
+        Entity nativeEntity = seesModel ? null : NpcEntityAccess.getBukkitEntity(npc);
+        if (!seesModel && nativeEntity == null) return false;
+        BoundingBox box = seesModel ? applied.dummy.getBoundingBox() : nativeEntity.getBoundingBox();
         Vector eye = player.getEyeLocation().toVector();
         double dx = Math.max(box.getMinX() - eye.getX(), Math.max(0, eye.getX() - box.getMaxX()));
         double dy = Math.max(box.getMinY() - eye.getY(), Math.max(0, eye.getY() - box.getMaxY()));
@@ -245,7 +257,7 @@ public final class ModelEngineProvider implements ModelProvider {
     /** Called exactly once from NpcPreInteractEvent for native and ME hitbox clicks. */
     public boolean claimInteraction(Npc npc, Player player, ActionTrigger trigger) {
         requireMainThread();
-        if (closed || !mayInteract(npc, player)) return false;
+        if (closed || !mayInteract(npc, player, false)) return false;
         int tick = Bukkit.getCurrentTick();
         interactions.entrySet().removeIf(entry -> tick - entry.getValue() > 40);
         Interaction interaction = new Interaction(npc, player.getUniqueId(), trigger);
@@ -258,6 +270,51 @@ public final class ModelEngineProvider implements ModelProvider {
     void forgetInteractions(UUID player) {
         requireMainThread();
         interactions.keySet().removeIf(interaction -> interaction.player.equals(player));
+        for (AppliedModel applied : appliedModels.values()) {
+            applied.viewerSlots.remove(player);
+            applied.waitingViewers.remove(player);
+            if (applied.viewers.remove(player)) {
+                applied.dummy.getData().getTracked().removeForcedPairing(player);
+                nativeVisibility.setViewers(applied.npc.getEntityId(), applied.viewers);
+            }
+        }
+        awaitingVisibility.remove(player);
+        nativeVisibility.forgetPlayer(player);
+    }
+
+    private void viewerVisibilityReady(UUID viewer) {
+        onMain(() -> {
+            Set<AppliedModel> waiting = awaitingVisibility.remove(viewer);
+            Player player = Bukkit.getPlayer(viewer);
+            if (waiting == null) return;
+            for (AppliedModel applied : waiting) {
+                applied.waitingViewers.remove(viewer);
+                if (closed || player == null || appliedModels.get(applied.npc.getData().getId()) != applied) continue;
+                int capacity = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getViewerProtection().capacity();
+                // Complete one asynchronous admission, without another full scan
+                // or waiting an extra 1~5 second visibility refresh cycle.
+                try {
+                    if (!applied.viewerSlots.hasSlot(viewer, capacity) || applied.viewers.size() >= capacity
+                            || !healthy(applied) || !isCurrentNpc(applied.npc) || !stillRequested(applied)
+                            || !visibleTo(applied.npc, player)
+                            || applied.npc.getData().getLocation().getWorld() != applied.location.getWorld()
+                            || !nativeVisibility.ensureReady(player)) continue;
+                    applied.dummy.getData().getTracked().addForcedPairing(viewer);
+                    applied.viewers.add(viewer);
+                    publishNativeVisibility(applied.npc, applied.viewers);
+                } catch (RuntimeException | LinkageError failure) {
+                    logFailure("Failed to admit ModelEngine viewer", applied.npc, failure);
+                }
+            }
+        });
+    }
+
+    private void clearWaitingViewers(AppliedModel applied) {
+        for (UUID viewer : applied.waitingViewers) {
+            Set<AppliedModel> waiting = awaitingVisibility.get(viewer);
+            if (waiting != null && waiting.remove(applied) && waiting.isEmpty()) awaitingVisibility.remove(viewer);
+        }
+        applied.waitingViewers.clear();
     }
 
     private void tick() {
@@ -323,7 +380,22 @@ public final class ModelEngineProvider implements ModelProvider {
         applied.dummy.setHitbox(new Hitbox(width, height, width, eyeHeight));
         applied.dummy.setLocation(target);
         applied.location = target;
+        Map<UUID, Player> eligible = new LinkedHashMap<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (visibleTo(applied.npc, player)) eligible.put(player.getUniqueId(), player);
+        }
+        int capacity = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig().getViewerProtection().capacity();
         Set<UUID> desired = new HashSet<>();
+        clearWaitingViewers(applied);
+        for (UUID viewer : applied.viewerSlots.select(eligible.keySet(), capacity)) {
+            // Until the per-player adapter is installed, retain a visible vanilla
+            // NPC. Never attach a model and leave both bodies visible indefinitely.
+            if (nativeVisibility.ensureReady(eligible.get(viewer))) desired.add(viewer);
+            else {
+                applied.waitingViewers.add(viewer);
+                awaitingVisibility.computeIfAbsent(viewer, ignored -> new HashSet<>()).add(applied);
+            }
+        }
         List<SmoothHeadTracking.Candidate> candidates = new ArrayList<>();
         boolean track = settings.headTrackingEnabled() && applied.npc.getData().isTurnToPlayer()
                 && !applied.animations.isHeadTrackingPaused();
@@ -331,9 +403,8 @@ public final class ModelEngineProvider implements ModelProvider {
         // rendered eyes. Scale the visual bone height exactly once instead.
         double gazeHeight = ModelGazeOrigin.eyeHeight(applied.model.getBlueprint(), applied.model.getScale().y(), settings.gazeOrigin());
         Location head = target.clone().add(0, gazeHeight, 0);
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!visibleTo(applied.npc, player)) continue;
-            desired.add(player.getUniqueId());
+        for (UUID viewer : desired) {
+            Player player = eligible.get(viewer);
             double distance = player.getLocation().distanceSquared(target);
             if (track) {
                 ModelGazeOrigin.lookAt(head, player.getEyeLocation(), settings.gazeOrigin()).ifPresent(facing ->
@@ -349,7 +420,7 @@ public final class ModelEngineProvider implements ModelProvider {
         applied.viewers.clear();
         applied.viewers.addAll(desired);
         updateMotion(applied, candidates, true);
-        hideNpc(applied.npc);
+        publishNativeVisibility(applied.npc, desired);
     }
 
     private void updateMotion(AppliedModel applied, List<SmoothHeadTracking.Candidate> candidates, boolean refreshTarget) {
@@ -407,6 +478,7 @@ public final class ModelEngineProvider implements ModelProvider {
 
     private void discard(AppliedModel applied, boolean restoreVisibility) {
         requireMainThread();
+        clearWaitingViewers(applied);
         appliedModels.remove(applied.npc.getData().getId(), applied);
         dummyToNpc.remove(applied.dummy.getUUID(), applied);
         try {
@@ -441,36 +513,37 @@ public final class ModelEngineProvider implements ModelProvider {
         }
     }
 
-    private void hideNpc(Npc npc) {
+    private void publishNativeVisibility(Npc npc, Set<UUID> viewers) {
         requireMainThread();
-        Entity entity = NpcEntityAccess.getBukkitEntity(npc);
-        if (entity == null) throw new IllegalStateException("Cannot access FancyNpcs packet entity");
-        hiddenNpcs.put(npc, entity);
-        if (!entity.isInvisible()) {
-            entity.setInvisible(true);
-            refreshMetadata(npc);
+        int entityId = npc.getEntityId();
+        Integer previousId = hiddenNpcs.put(npc, entityId);
+        Set<UUID> previous = previousId != null && previousId != entityId
+                ? nativeVisibility.clearNpc(previousId) : nativeVisibility.getViewers(entityId);
+        nativeVisibility.setViewers(entityId, viewers);
+        Set<UUID> changed = new HashSet<>(previous);
+        for (UUID viewer : viewers) {
+            if (!changed.add(viewer) && previousId != null && previousId == entityId) changed.remove(viewer);
         }
+        refreshMetadata(npc, changed);
     }
 
     private void restoreNpcVisibility(Npc npc) {
         requireMainThread();
-        Entity hidden = hiddenNpcs.remove(npc);
-        if (hidden == null) return;
-        NpcAttribute invisible = FancyNpcsPlugin.get().getAttributeManager().getAttributeByName(EntityType.PLAYER, "invisible");
-        boolean userInvisible = invisible != null
-                && "true".equalsIgnoreCase(npc.getData().getAttributes().getOrDefault(invisible, "false"));
-        if (hidden.isInvisible() != userInvisible) {
-            hidden.setInvisible(userInvisible);
-            // A reloaded Npc must not send stale metadata over the new entity id.
-            if (isCurrentNpc(npc) && NpcEntityAccess.getBukkitEntity(npc) == hidden) refreshMetadata(npc);
-        }
+        Integer entityId = hiddenNpcs.remove(npc);
+        if (entityId == null) return;
+        Set<UUID> viewers = nativeVisibility.clearNpc(entityId);
+        // Preserve the user's original invisibility and every other metadata bit.
+        // A reloaded Npc must not send stale metadata over a replacement entity.
+        if (isCurrentNpc(npc) && npc.getEntityId() == entityId) refreshMetadata(npc, viewers);
     }
 
-    private void refreshMetadata(Npc npc) {
+    private void refreshMetadata(Npc npc, Collection<UUID> viewers) {
+        if (viewers.isEmpty()) return;
         try {
             Method method = METADATA_REFRESH.get(npc.getClass());
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (npc.isShownFor(player)) method.invoke(npc, player);
+            for (UUID viewer : viewers) {
+                Player player = Bukkit.getPlayer(viewer);
+                if (player != null && player.isOnline() && npc.isShownFor(player)) method.invoke(npc, player);
             }
         } catch (ReflectiveOperationException | RuntimeException failure) {
             Throwable cause = failure instanceof InvocationTargetException invoked ? invoked.getCause() : failure;
@@ -494,6 +567,8 @@ public final class ModelEngineProvider implements ModelProvider {
             appliedModels.clear();
             dummyToNpc.clear();
             hiddenNpcs.clear();
+            awaitingVisibility.clear();
+            nativeVisibility.close();
             interactions.clear();
         });
     }
@@ -548,6 +623,8 @@ public final class ModelEngineProvider implements ModelProvider {
         final ActiveModel model;
         final List<String> animationNames;
         final Set<UUID> viewers = new HashSet<>();
+        final ModelViewerSlots viewerSlots = new ModelViewerSlots();
+        final Set<UUID> waitingViewers = new HashSet<>();
         Location location;
         double scale;
         String failure = "";

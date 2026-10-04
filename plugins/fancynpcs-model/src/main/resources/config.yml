@@ -7,6 +7,13 @@ settings:
     version_notification: false
   language: default
   modelengine:
+    viewer-protection:
+      # 每个 NPC 保留先进入可见范围的观看者；超额玩家看到原来的基础 NPC。
+      # 名额按主插件可见性、世界和距离判断，不按玩家摄像机是否正对 NPC 判断。
+      enabled: true
+      # 0 全部使用基础 NPC；enabled: false 取消人数限制。
+      # 沿用主插件刷新间隔，最低 20 tick；退出后按等待顺序补位。
+      max-viewers-per-npc: 10
     head-tracking:
       # 还需对 NPC 启用 /npc turn_to_player <npc> true；追踪范围沿用 FancyNpcs 设置。
       enabled: true
