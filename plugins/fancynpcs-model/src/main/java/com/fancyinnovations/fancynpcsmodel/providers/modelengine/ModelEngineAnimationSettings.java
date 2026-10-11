@@ -27,7 +27,9 @@ public record ModelEngineAnimationSettings(
         headTrackingPauseAnimations = Set.copyOf(headTrackingPauseAnimations);
         Set<Integer> priorities = new HashSet<>();
         for (LoopAnimation loop : loopAnimations) {
-            if (!loop.enabled()) continue;
+            if (!loop.enabled()) {
+                continue;
+            }
             if (loop.priority() == gesture.priority() || loop.priority() == pose.priority()
                     || !priorities.add(loop.priority())) {
                 throw new IllegalArgumentException("Enabled ambient animation layers must have separate priorities from manual actions");
@@ -91,11 +93,15 @@ public record ModelEngineAnimationSettings(
     }
 
     private static String name(String name) {
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("Animation name must not be blank");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Animation name must not be blank");
+        }
         return name.trim();
     }
 
     private static void positivePriority(int priority) {
-        if (priority <= 0) throw new IllegalArgumentException("Custom animation priority must be positive; zero is reserved for default states");
+        if (priority <= 0) {
+            throw new IllegalArgumentException("Custom animation priority must be positive; zero is reserved for default states");
+        }
     }
 }

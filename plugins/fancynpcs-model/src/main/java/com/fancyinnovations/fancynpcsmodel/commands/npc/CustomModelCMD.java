@@ -48,7 +48,7 @@ public class CustomModelCMD extends FancyContext {
             CustomModelAttribute.removeModels(npc);
             npc.updateForAll();
 
-            translator.translate("commands.npc.custom_model.removed")
+            super.translator.translate("commands.npc.custom_model.removed")
                     .withPrefix()
                     .replace("npc", npc.getData().getName())
                     .send(sender);
@@ -57,7 +57,7 @@ public class CustomModelCMD extends FancyContext {
 
         ModelProviderRegistry.ResolvedModel resolved = ModelProviderRegistry.resolve(model);
         if (resolved == null) {
-            translator.translate("common.model_not_found")
+            super.translator.translate("common.model_not_found")
                     .withPrefix()
                     .replace("npc", npc.getData().getName())
                     .replace("model", model)
@@ -70,7 +70,7 @@ public class CustomModelCMD extends FancyContext {
         CustomModelAttribute.restoreStoredModel(npc);
         npc.updateForAll();
 
-        translator.translate("commands.npc.custom_model.applied")
+        super.translator.translate("commands.npc.custom_model.applied")
                 .withPrefix()
                 .replace("npc", npc.getData().getName())
                 .replace("model", resolved.modelName())

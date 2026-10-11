@@ -33,7 +33,9 @@ public final class SmoothHeadTracking {
     /** Keep the pose and selected player across reload; new limits converge smoothly. */
     public void reconfigure(Config config) {
         Objects.requireNonNull(config, "config");
-        if (!this.config.bodyFollow.equals(config.bodyFollow)) resetBodyFollow();
+        if (!this.config.bodyFollow.equals(config.bodyFollow)) {
+            resetBodyFollow();
+        }
         this.config = config;
     }
 
@@ -42,17 +44,17 @@ public final class SmoothHeadTracking {
         requireFinite(bodyYaw, "bodyYaw");
         requirePitch(neutralPitch, "neutralPitch");
         this.bodyYaw = wrapDegrees(bodyYaw);
-        placementYaw = this.bodyYaw;
-        headYawOffset = 0;
-        headPitch = clamp(neutralPitch, -config.maxPitchDegrees, config.maxPitchDegrees);
-        targetId = null;
-        targetHoldSeconds = 0;
-        missingSeconds = 0;
-        desiredYaw = this.bodyYaw;
-        desiredPitch = headPitch;
-        targetObserved = false;
+        this.placementYaw = this.bodyYaw;
+        this.headYawOffset = 0;
+        this.headPitch = clamp(neutralPitch, -this.config.maxPitchDegrees, this.config.maxPitchDegrees);
+        this.targetId = null;
+        this.targetHoldSeconds = 0;
+        this.missingSeconds = 0;
+        this.desiredYaw = this.bodyYaw;
+        this.desiredPitch = this.headPitch;
+        this.targetObserved = false;
         resetBodyFollow();
-        initialized = true;
+        this.initialized = true;
     }
 
     /**
@@ -78,20 +80,28 @@ public final class SmoothHeadTracking {
         requireFinite(bodyYaw, "bodyYaw");
         requirePitch(neutralPitch, "neutralPitch");
         requireFinite(trackingRange, "trackingRange");
-        if (trackingRange < 0) throw new IllegalArgumentException("trackingRange must be nonnegative");
+        if (trackingRange < 0) {
+            throw new IllegalArgumentException("trackingRange must be nonnegative");
+        }
         requireFinite(elapsedSeconds, "elapsedSeconds");
-        if (elapsedSeconds <= 0) throw new IllegalArgumentException("elapsedSeconds must be positive");
+        if (elapsedSeconds <= 0) {
+            throw new IllegalArgumentException("elapsedSeconds must be positive");
+        }
         Objects.requireNonNull(candidates, "candidates");
         // Reject bad samples before changing state, including on an empty range.
         if (refreshTarget) {
-            for (Candidate candidate : candidates) Objects.requireNonNull(candidate, "candidate");
+            for (Candidate candidate : candidates) {
+                Objects.requireNonNull(candidate, "candidate");
+            }
         }
-        if (!initialized) reset(bodyYaw, neutralPitch);
-        if (Math.abs(wrapDegrees(bodyYaw - placementYaw)) > 0.000001) {
+        if (!this.initialized) {
+            reset(bodyYaw, neutralPitch);
+        }
+        if (Math.abs(wrapDegrees(bodyYaw - this.placementYaw)) > 0.000001) {
             // Only an actual placement-orientation change resets the body.
             // The model's live rotation never writes back to NPC save data.
             this.bodyYaw += wrapDegrees(bodyYaw - this.bodyYaw);
-            placementYaw = wrapDegrees(bodyYaw);
+            this.placementYaw = wrapDegrees(bodyYaw);
             resetBodyFollow();
         }
 
@@ -99,80 +109,85 @@ public final class SmoothHeadTracking {
             clearTarget();
         } else if (refreshTarget) {
             selectTarget(trackingRange, candidates, elapsedSeconds);
-        } else if (targetId != null) {
+        } else if (this.targetId != null) {
             // Hold/grace durations still advance in real server ticks, rather
             // than becoming 20 times longer when player sampling is throttled.
-            if (targetObserved) targetHoldSeconds += elapsedSeconds;
-            else {
-                missingSeconds += elapsedSeconds;
-                if (missingSeconds >= config.lostTargetGraceSeconds) clearTarget();
+            if (this.targetObserved) {
+                this.targetHoldSeconds += elapsedSeconds;
+            } else {
+                this.missingSeconds += elapsedSeconds;
+                if (this.missingSeconds >= this.config.lostTargetGraceSeconds) {
+                    clearTarget();
+                }
             }
         }
 
-        double wantedOffset = targetId == null ? 0 : desiredOffset();
-        double wantedPitch = clamp(targetId == null ? neutralPitch : desiredPitch,
-                -config.maxPitchDegrees, config.maxPitchDegrees);
+        double wantedOffset = this.targetId == null ? 0 : desiredOffset();
+        double wantedPitch = clamp(this.targetId == null ? neutralPitch : this.desiredPitch,
+                -this.config.maxPitchDegrees, this.config.maxPitchDegrees);
         double stepSeconds = Math.min(elapsedSeconds, 0.25);
-        headYawOffset = approach(headYawOffset, wantedOffset, config.yawSpeedDegreesPerSecond, stepSeconds);
-        headPitch = approach(headPitch, wantedPitch, config.pitchSpeedDegreesPerSecond, stepSeconds);
+        this.headYawOffset = approach(this.headYawOffset, wantedOffset, this.config.yawSpeedDegreesPerSecond, stepSeconds);
+        this.headPitch = approach(this.headPitch, wantedPitch, this.config.pitchSpeedDegreesPerSecond, stepSeconds);
         followWithBody(allowBodyFollow, stepSeconds);
-        return new Pose(this.bodyYaw, this.bodyYaw + headYawOffset, headPitch, targetId);
+        return new Pose(this.bodyYaw, this.bodyYaw + this.headYawOffset, this.headPitch, this.targetId);
     }
 
     private void followWithBody(boolean allowed, double seconds) {
-        BodyFollow follow = config.bodyFollow;
-        if (!follow.enabled || !allowed || !targetObserved || targetId == null) {
+        BodyFollow follow = this.config.bodyFollow;
+        if (!follow.enabled || !allowed || !this.targetObserved || this.targetId == null) {
             resetBodyFollow();
             return;
         }
-        if (!followingWithBody) {
-            if (Math.abs(headYawOffset) < follow.startAngleDegrees - config.deadZoneDegrees) {
-                bodyDelaySeconds = 0;
+        if (!this.followingWithBody) {
+            if (Math.abs(this.headYawOffset) < follow.startAngleDegrees - this.config.deadZoneDegrees) {
+                this.bodyDelaySeconds = 0;
                 return;
             }
-            bodyDelaySeconds += seconds;
-            if (bodyDelaySeconds + 1e-9 < follow.delaySeconds) return;
-            followingWithBody = true;
+            this.bodyDelaySeconds += seconds;
+            if (this.bodyDelaySeconds + 1e-9 < follow.delaySeconds) {
+                return;
+            }
+            this.followingWithBody = true;
         }
-        if (Math.abs(headYawOffset) <= follow.stopAngleDegrees) {
+        if (Math.abs(this.headYawOffset) <= follow.stopAngleDegrees) {
             resetBodyFollow();
             return;
         }
         // Chase the head's actual direction, so even a very fast configured
         // body cannot overtake it. Preserve world-space head yaw while the
         // shoulders catch up; adding body rotation to the head would twitch.
-        double step = headYawOffset * -Math.expm1(-follow.responsePerSecond * seconds);
+        double step = this.headYawOffset * -Math.expm1(-follow.responsePerSecond * seconds);
         double rotation = clamp(step, -follow.yawSpeedDegreesPerSecond * seconds,
                 follow.yawSpeedDegreesPerSecond * seconds);
-        bodyYaw += rotation;
-        headYawOffset -= rotation;
+        this.bodyYaw += rotation;
+        this.headYawOffset -= rotation;
     }
 
     private void resetBodyFollow() {
-        followingWithBody = false;
-        bodyDelaySeconds = 0;
+        this.followingWithBody = false;
+        this.bodyDelaySeconds = 0;
     }
 
     private double desiredOffset() {
-        double relative = wrapDegrees(desiredYaw - bodyYaw);
+        double relative = wrapDegrees(this.desiredYaw - this.bodyYaw);
         // Behind the NPC, +179 and -179 must not alternate the side of its
         // neck. Keep the previous side until the player returns to the front.
-        if (Math.abs(relative) > Math.max(120, config.maxYawDegrees)
-                && Math.abs(headYawOffset) > config.deadZoneDegrees) {
-            relative = Math.copySign(Math.abs(relative), headYawOffset);
+        if (Math.abs(relative) > Math.max(120, this.config.maxYawDegrees)
+                && Math.abs(this.headYawOffset) > this.config.deadZoneDegrees) {
+            relative = Math.copySign(Math.abs(relative), this.headYawOffset);
         }
-        return clamp(relative, -config.maxYawDegrees, config.maxYawDegrees);
+        return clamp(relative, -this.config.maxYawDegrees, this.config.maxYawDegrees);
     }
 
     private void selectTarget(double range, Collection<Candidate> candidates, double elapsedSeconds) {
-        targetObserved = false;
+        this.targetObserved = false;
         Candidate current = null;
         Candidate nearest = null;
         double acquisitionSquared = range * range;
-        double exitRange = range * config.exitRangeMultiplier;
+        double exitRange = range * this.config.exitRangeMultiplier;
         double exitSquared = exitRange * exitRange;
         for (Candidate candidate : candidates) {
-            if (candidate.targetId.equals(targetId) && candidate.distanceSquared <= exitSquared) {
+            if (candidate.targetId.equals(this.targetId) && candidate.distanceSquared <= exitSquared) {
                 current = candidate;
             }
             if (candidate.distanceSquared <= acquisitionSquared && (nearest == null
@@ -184,57 +199,67 @@ public final class SmoothHeadTracking {
         }
 
         if (current != null) {
-            targetObserved = true;
-            missingSeconds = 0;
-            targetHoldSeconds += elapsedSeconds;
-            double ratioSquared = config.switchDistanceRatio * config.switchDistanceRatio;
-            if (nearest != null && !nearest.targetId.equals(targetId)
-                    && targetHoldSeconds >= config.minimumTargetHoldSeconds
+            this.targetObserved = true;
+            this.missingSeconds = 0;
+            this.targetHoldSeconds += elapsedSeconds;
+            double ratioSquared = this.config.switchDistanceRatio * this.config.switchDistanceRatio;
+            if (nearest != null && !nearest.targetId.equals(this.targetId)
+                    && this.targetHoldSeconds >= this.config.minimumTargetHoldSeconds
                     && nearest.distanceSquared < current.distanceSquared * ratioSquared) {
                 acquire(nearest);
             } else {
-                desiredYaw = current.yaw;
-                desiredPitch = current.pitch;
+                this.desiredYaw = current.yaw;
+                this.desiredPitch = current.pitch;
             }
             return;
         }
-        if (targetId != null) {
-            missingSeconds += elapsedSeconds;
-            if (missingSeconds < config.lostTargetGraceSeconds) return;
+        if (this.targetId != null) {
+            this.missingSeconds += elapsedSeconds;
+            if (this.missingSeconds < this.config.lostTargetGraceSeconds) {
+                return;
+            }
             clearTarget();
         }
-        if (nearest != null) acquire(nearest);
+        if (nearest != null) {
+            acquire(nearest);
+        }
     }
 
     private void acquire(Candidate candidate) {
-        targetId = candidate.targetId;
-        desiredYaw = candidate.yaw;
-        desiredPitch = candidate.pitch;
-        targetHoldSeconds = 0;
-        missingSeconds = 0;
-        targetObserved = true;
+        this.targetId = candidate.targetId;
+        this.desiredYaw = candidate.yaw;
+        this.desiredPitch = candidate.pitch;
+        this.targetHoldSeconds = 0;
+        this.missingSeconds = 0;
+        this.targetObserved = true;
         resetBodyFollow();
     }
 
     private void clearTarget() {
-        targetId = null;
-        targetHoldSeconds = 0;
-        missingSeconds = 0;
-        targetObserved = false;
+        this.targetId = null;
+        this.targetHoldSeconds = 0;
+        this.missingSeconds = 0;
+        this.targetObserved = false;
         resetBodyFollow();
     }
 
     private double approach(double current, double desired, double speed, double seconds) {
         double difference = desired - current;
-        if (Math.abs(difference) <= config.deadZoneDegrees) return current;
-        double step = difference * -Math.expm1(-config.responsePerSecond * seconds);
+        if (Math.abs(difference) <= this.config.deadZoneDegrees) {
+            return current;
+        }
+        double step = difference * -Math.expm1(-this.config.responsePerSecond * seconds);
         return current + clamp(step, -speed * seconds, speed * seconds);
     }
 
     static double wrapDegrees(double degrees) {
         double wrapped = degrees % 360;
-        if (wrapped >= 180) wrapped -= 360;
-        if (wrapped < -180) wrapped += 360;
+        if (wrapped >= 180) {
+            wrapped -= 360;
+        }
+        if (wrapped < -180) {
+            wrapped += 360;
+        }
         return wrapped;
     }
 
@@ -243,26 +268,33 @@ public final class SmoothHeadTracking {
     }
 
     private static void requireFinite(double value, String name) {
-        if (!Double.isFinite(value)) throw new IllegalArgumentException(name + " must be finite");
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException(name + " must be finite");
+        }
     }
 
     private static void requirePitch(double value, String name) {
         requireFinite(value, name);
-        if (value < -90 || value > 90) throw new IllegalArgumentException(name + " must be between -90 and 90");
+        if (value < -90 || value > 90) {
+            throw new IllegalArgumentException(name + " must be between -90 and 90");
+        }
     }
 
     public record Candidate(UUID targetId, double distanceSquared, double yaw, double pitch) {
         public Candidate {
             Objects.requireNonNull(targetId, "targetId");
             requireFinite(distanceSquared, "distanceSquared");
-            if (distanceSquared < 0) throw new IllegalArgumentException("distanceSquared must be nonnegative");
+            if (distanceSquared < 0) {
+                throw new IllegalArgumentException("distanceSquared must be nonnegative");
+            }
             requireFinite(yaw, "yaw");
             requirePitch(pitch, "pitch");
         }
     }
 
     /** Continuous yaw values avoid a numeric +180/-180 discontinuity. */
-    public record Pose(double bodyYaw, double headYaw, double headPitch, UUID targetId) { }
+    public record Pose(double bodyYaw, double headYaw, double headPitch, UUID targetId) {
+    }
 
     public record Config(double maxYawDegrees, double maxPitchDegrees,
                          double yawSpeedDegreesPerSecond, double pitchSpeedDegreesPerSecond,
@@ -272,9 +304,13 @@ public final class SmoothHeadTracking {
         public Config {
             Objects.requireNonNull(bodyFollow, "bodyFollow");
             positive(maxYawDegrees, "maxYawDegrees");
-            if (maxYawDegrees >= 180) throw new IllegalArgumentException("maxYawDegrees must be less than 180");
+            if (maxYawDegrees >= 180) {
+                throw new IllegalArgumentException("maxYawDegrees must be less than 180");
+            }
             positive(maxPitchDegrees, "maxPitchDegrees");
-            if (maxPitchDegrees > 90) throw new IllegalArgumentException("maxPitchDegrees must not exceed 90");
+            if (maxPitchDegrees > 90) {
+                throw new IllegalArgumentException("maxPitchDegrees must not exceed 90");
+            }
             positive(yawSpeedDegreesPerSecond, "yawSpeedDegreesPerSecond");
             positive(pitchSpeedDegreesPerSecond, "pitchSpeedDegreesPerSecond");
             positive(responsePerSecond, "responsePerSecond");
@@ -283,11 +319,15 @@ public final class SmoothHeadTracking {
                 throw new IllegalArgumentException("deadZoneDegrees must be smaller than head limits");
             }
             positive(switchDistanceRatio, "switchDistanceRatio");
-            if (switchDistanceRatio > 1) throw new IllegalArgumentException("switchDistanceRatio must not exceed 1");
+            if (switchDistanceRatio > 1) {
+                throw new IllegalArgumentException("switchDistanceRatio must not exceed 1");
+            }
             nonnegative(minimumTargetHoldSeconds, "minimumTargetHoldSeconds");
             nonnegative(lostTargetGraceSeconds, "lostTargetGraceSeconds");
             requireFinite(exitRangeMultiplier, "exitRangeMultiplier");
-            if (exitRangeMultiplier < 1) throw new IllegalArgumentException("exitRangeMultiplier must be at least 1");
+            if (exitRangeMultiplier < 1) {
+                throw new IllegalArgumentException("exitRangeMultiplier must be at least 1");
+            }
             if (bodyFollow.enabled && bodyFollow.startAngleDegrees > maxYawDegrees) {
                 throw new IllegalArgumentException("Body start angle must not exceed the head yaw limit");
             }
@@ -298,20 +338,24 @@ public final class SmoothHeadTracking {
         }
 
         public Config withBodyFollow(BodyFollow follow) {
-            return new Config(maxYawDegrees, maxPitchDegrees, yawSpeedDegreesPerSecond,
-                    pitchSpeedDegreesPerSecond, responsePerSecond, deadZoneDegrees,
-                    switchDistanceRatio, minimumTargetHoldSeconds, lostTargetGraceSeconds,
-                    exitRangeMultiplier, follow);
+            return new Config(this.maxYawDegrees, this.maxPitchDegrees, this.yawSpeedDegreesPerSecond,
+                    this.pitchSpeedDegreesPerSecond, this.responsePerSecond, this.deadZoneDegrees,
+                    this.switchDistanceRatio, this.minimumTargetHoldSeconds, this.lostTargetGraceSeconds,
+                    this.exitRangeMultiplier, follow);
         }
 
         private static void positive(double value, String name) {
             requireFinite(value, name);
-            if (value <= 0) throw new IllegalArgumentException(name + " must be positive");
+            if (value <= 0) {
+                throw new IllegalArgumentException(name + " must be positive");
+            }
         }
 
         private static void nonnegative(double value, String name) {
             requireFinite(value, name);
-            if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative");
+            if (value < 0) {
+                throw new IllegalArgumentException(name + " must be nonnegative");
+            }
         }
     }
 
@@ -320,9 +364,13 @@ public final class SmoothHeadTracking {
                              double responsePerSecond, boolean pauseDuringPose) {
         public BodyFollow {
             Config.positive(startAngleDegrees, "body startAngleDegrees");
-            if (startAngleDegrees >= 180) throw new IllegalArgumentException("Body start angle must be less than 180");
+            if (startAngleDegrees >= 180) {
+                throw new IllegalArgumentException("Body start angle must be less than 180");
+            }
             Config.nonnegative(stopAngleDegrees, "body stopAngleDegrees");
-            if (stopAngleDegrees >= startAngleDegrees) throw new IllegalArgumentException("Body stop angle must be less than start angle");
+            if (stopAngleDegrees >= startAngleDegrees) {
+                throw new IllegalArgumentException("Body stop angle must be less than start angle");
+            }
             Config.nonnegative(delaySeconds, "body delaySeconds");
             Config.positive(yawSpeedDegreesPerSecond, "body yawSpeedDegreesPerSecond");
             Config.positive(responsePerSecond, "body responsePerSecond");

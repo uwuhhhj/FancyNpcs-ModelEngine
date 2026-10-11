@@ -3,17 +3,44 @@ package com.fancyinnovations.fancynpcsmodel.utils;
 import com.fancyinnovations.fancynpcsmodel.main.FancyNpcsModelPlugin;
 import de.oliver.fancyanalytics.logger.properties.StringProperty;
 import de.oliver.fancyanalytics.logger.properties.ThrowableProperty;
-import de.oliver.fancylib.ReflectionUtils;
 import de.oliver.fancynpcs.api.Npc;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Provides access to the (packet based) entity behind a FancyNpcs NPC.
  */
 public final class NpcEntityAccess {
+
+    private static final ClassValue<EntityAccess> ENTITY_ACCESS = new ClassValue<>() {
+        @Override
+        protected EntityAccess computeValue(Class<?> type) {
+            Field npcField = null;
+            try {
+                for (Class<?> current = type; current != null; current = current.getSuperclass()) {
+                    try {
+                        npcField = current.getDeclaredField("npc");
+                        break;
+                    } catch (NoSuchFieldException ignored) {
+                        continue;
+                    }
+                }
+                if (npcField == null) {
+                    throw new NoSuchFieldException(type.getName() + ".npc");
+                }
+                npcField.setAccessible(true);
+                // All retained NPC implementations declare an NMS Entity field with a public Bukkit getter.
+                Method bukkitEntityMethod = npcField.getType().getMethod("getBukkitEntity");
+                return new EntityAccess(npcField, bukkitEntityMethod, null);
+            } catch (ReflectiveOperationException | RuntimeException failure) {
+                return new EntityAccess(npcField, null, failure);
+            }
+        }
+    };
 
     private NpcEntityAccess() {
     }
@@ -22,24 +49,54 @@ public final class NpcEntityAccess {
      * @return the bukkit entity behind the given NPC or null if it could not be resolved
      */
     public static @Nullable Entity getBukkitEntity(Npc npc) {
-        // get the nms entity object from the Npc implementation classes
-        Object nmsEntity = ReflectionUtils.getValue(npc, "npc");
-        if (nmsEntity == null) {
-            // TODO: create fake nms / bukkit entity object once FancyNpcs itself doesn't store the entity object anymore (when migrated to FancySitula)
-            FancyNpcsModelPlugin.get().getFancyLogger().error("Failed to get NMS entity from NPC");
-            return null;
-        }
-
-        // call the Entity#getBukkitEntity method to get the bukkit entity object
-        try {
-            return (Entity) ReflectionUtils.getMethod(nmsEntity, "getBukkitEntity").invoke(nmsEntity);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        EntityAccess access = ENTITY_ACCESS.get(npc.getClass());
+        if (access.npcField() == null) {
             FancyNpcsModelPlugin.get().getFancyLogger().error(
-                    "Failed to invoke getBukkitEntity method on NMS entity",
-                    ThrowableProperty.of(e),
+                    "Failed to get NMS entity from NPC",
+                    ThrowableProperty.of(access.failure()),
                     StringProperty.of("npc_name", npc.getData().getName())
             );
             return null;
         }
+
+        Object nmsEntity;
+        try {
+            nmsEntity = access.npcField().get(npc);
+        } catch (IllegalAccessException | RuntimeException failure) {
+            FancyNpcsModelPlugin.get().getFancyLogger().error(
+                    "Failed to get NMS entity from NPC",
+                    ThrowableProperty.of(failure),
+                    StringProperty.of("npc_name", npc.getData().getName())
+            );
+            return null;
+        }
+        if (nmsEntity == null) {
+            FancyNpcsModelPlugin.get().getFancyLogger().error("Failed to get NMS entity from NPC");
+            return null;
+        }
+
+        if (access.bukkitEntityMethod() == null) {
+            FancyNpcsModelPlugin.get().getFancyLogger().error(
+                    "Failed to invoke getBukkitEntity method on NMS entity",
+                    ThrowableProperty.of(access.failure()),
+                    StringProperty.of("npc_name", npc.getData().getName())
+            );
+            return null;
+        }
+
+        try {
+            return (Entity) access.bukkitEntityMethod().invoke(nmsEntity);
+        } catch (IllegalAccessException | InvocationTargetException | RuntimeException failure) {
+            FancyNpcsModelPlugin.get().getFancyLogger().error(
+                    "Failed to invoke getBukkitEntity method on NMS entity",
+                    ThrowableProperty.of(failure),
+                    StringProperty.of("npc_name", npc.getData().getName())
+            );
+            return null;
+        }
+    }
+
+    private record EntityAccess(@Nullable Field npcField, @Nullable Method bukkitEntityMethod,
+                                @Nullable Throwable failure) {
     }
 }

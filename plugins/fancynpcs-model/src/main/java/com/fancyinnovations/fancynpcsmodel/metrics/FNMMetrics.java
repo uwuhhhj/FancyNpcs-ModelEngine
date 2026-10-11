@@ -22,21 +22,21 @@ public class FNMMetrics {
     private FancyAnalyticsAPI fancyAnalytics;
 
     public FNMMetrics() {
-        logger = FancyNpcsModelPlugin.get().getFancyLogger();
+        this.logger = FancyNpcsModelPlugin.get().getFancyLogger();
     }
 
     public void register() {
-        fancyAnalytics = new FancyAnalyticsAPI("ddb636b6-25b5-4d44-abfc-3bb0dabd2b97", "-J4fYDk1Y2RhZDI3ZWRmZDRkYmT0usLA");
-        fancyAnalytics.getConfig().setDisableLogging(true);
+        this.fancyAnalytics = new FancyAnalyticsAPI("ddb636b6-25b5-4d44-abfc-3bb0dabd2b97", "-J4fYDk1Y2RhZDI3ZWRmZDRkYmT0usLA");
+        this.fancyAnalytics.getConfig().setDisableLogging(true);
 
-        fancyAnalytics.registerMinecraftPluginMetrics(FancyNpcsModelPlugin.get());
-        fancyAnalytics.getExceptionHandler().registerLogger(FancyNpcsModelPlugin.get().getLogger());
-        fancyAnalytics.getExceptionHandler().registerLogger(Bukkit.getLogger());
-        fancyAnalytics.getExceptionHandler().registerLogger(logger);
+        this.fancyAnalytics.registerMinecraftPluginMetrics(FancyNpcsModelPlugin.get());
+        this.fancyAnalytics.getExceptionHandler().registerLogger(FancyNpcsModelPlugin.get().getLogger());
+        this.fancyAnalytics.getExceptionHandler().registerLogger(Bukkit.getLogger());
+        this.fancyAnalytics.getExceptionHandler().registerLogger(this.logger);
 
-        fancyAnalytics.registerStringMetric(new MetricSupplier<>("commit_hash", () -> FancyNpcsModelPlugin.get().getVersionConfig().getCommitHash().substring(0, 7)));
+        this.fancyAnalytics.registerStringMetric(new MetricSupplier<>("commit_hash", () -> FancyNpcsModelPlugin.get().getVersionConfig().getCommitHash().substring(0, 7)));
 
-        fancyAnalytics.registerStringMetric(new MetricSupplier<>("server_size", () -> {
+        this.fancyAnalytics.registerStringMetric(new MetricSupplier<>("server_size", () -> {
             long onlinePlayers = Bukkit.getOnlinePlayers().size();
 
             if (onlinePlayers == 0) {
@@ -58,7 +58,7 @@ public class FNMMetrics {
             return "very_large";
         }));
 
-        fancyAnalytics.registerNumberMetric(new MetricSupplier<>("amount_npcs_with_custom_model", () -> {
+        this.fancyAnalytics.registerNumberMetric(new MetricSupplier<>("amount_npcs_with_custom_model", () -> {
             double counter = 0;
 
             for (Npc npc : FancyNpcsPlugin.get().getNpcManager().getAllNpcs()) {
@@ -70,7 +70,7 @@ public class FNMMetrics {
             return counter;
         }));
 
-        fancyAnalytics.initialize();
+        this.fancyAnalytics.initialize();
     }
 
     public void checkIfPluginVersionUpdated() {
@@ -83,21 +83,21 @@ public class FNMMetrics {
             try {
                 Files.write(versionFile.toPath(), currentVersion.getBytes());
             } catch (IOException e) {
-                logger.warn("Could not write version file.");
+                this.logger.warn("Could not write version file.");
                 return;
             }
         } else {
             try {
                 lastVersion = new String(Files.readAllBytes(versionFile.toPath()));
             } catch (IOException e) {
-                logger.warn("Could not read version file.");
+                this.logger.warn("Could not read version file.");
                 return;
             }
         }
 
         if (!lastVersion.equals(currentVersion)) {
-            logger.info("Plugin has been updated from version " + lastVersion + " to " + currentVersion + ".");
-            fancyAnalytics.sendEvent(
+            this.logger.info("Plugin has been updated from version " + lastVersion + " to " + currentVersion + ".");
+            this.fancyAnalytics.sendEvent(
                     new Event("PluginVersionUpdated", new HashMap<>())
                             .withProperty("from", lastVersion)
                             .withProperty("to", currentVersion)
@@ -109,13 +109,13 @@ public class FNMMetrics {
             try {
                 Files.write(versionFile.toPath(), currentVersion.getBytes());
             } catch (IOException e) {
-                logger.warn("Could not write version file.");
+                this.logger.warn("Could not write version file.");
             }
         }
     }
 
     public FancyAnalyticsAPI getFancyAnalytics() {
-        return fancyAnalytics;
+        return this.fancyAnalytics;
     }
 
 }

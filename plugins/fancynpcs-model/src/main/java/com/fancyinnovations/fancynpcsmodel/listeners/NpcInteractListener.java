@@ -21,8 +21,9 @@ public class NpcInteractListener implements Listener {
             // Both the packet NPC and ModelEngine hitbox enter this event. Claim
             // once here so permissions, visibility, reach and duplicate clicks
             // are checked identically before FancyNpcs executes its actions.
-            if (!modelEngine.claimInteraction(event.getNpc(), event.getPlayer(), event.getInteractionType()))
+            if (!modelEngine.claimInteraction(event.getNpc(), event.getPlayer(), event.getInteractionType())) {
                 event.setCancelled(true);
+            }
         } else if (provider != null && provider.shouldCancelNativeInteraction()) {
             event.setCancelled(true);
         }

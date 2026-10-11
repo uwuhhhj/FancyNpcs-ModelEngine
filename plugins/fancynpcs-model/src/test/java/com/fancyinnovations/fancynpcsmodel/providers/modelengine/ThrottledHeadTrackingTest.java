@@ -29,7 +29,10 @@ class ThrottledHeadTrackingTest {
     void targetHoldTimeAdvancesBetweenOneSecondSamples() {
         SmoothHeadTracking tracking = new SmoothHeadTracking(SmoothHeadTracking.Config.defaults());
         tracking.tick(0, 0, 8, List.of(new SmoothHeadTracking.Candidate(FIRST, 16, 40, 0)), STEP, true, true);
-        for (int tick = 1; tick < 20; tick++) tracking.tick(0, 0, 8, List.of(), STEP, true, false);
+        for (int tick = 1; tick < 20; tick++) {
+            tracking.tick(0, 0, 8, List.of(), STEP, true, false);
+        }
+
         SmoothHeadTracking.Pose next = tracking.tick(0, 0, 8, List.of(
                 new SmoothHeadTracking.Candidate(FIRST, 16, 40, 0),
                 new SmoothHeadTracking.Candidate(SECOND, 1, -40, 0)), STEP, true, true);
@@ -42,7 +45,9 @@ class ThrottledHeadTrackingTest {
         tracking.tick(0, 0, 8, List.of(new SmoothHeadTracking.Candidate(FIRST, 9, 60, 0)), STEP, true, true);
         assertEquals(FIRST, tracking.tick(0, 0, 8, List.of(), STEP, true, true).targetId());
         SmoothHeadTracking.Pose pose = null;
-        for (int tick = 0; tick < 4; tick++) pose = tracking.tick(0, 0, 8, List.of(), STEP, true, false);
+        for (int tick = 0; tick < 4; tick++) {
+            pose = tracking.tick(0, 0, 8, List.of(), STEP, true, false);
+        }
         assertNull(pose.targetId());
     }
 

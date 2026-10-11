@@ -14,9 +14,9 @@ public abstract class FancyContext {
 
     public FancyContext() {
         this.plugin = FancyNpcsModelPlugin.get();
-        this.config = FancyNpcsModelPlugin.get().getFancyNpcsModelConfig();
-        this.logger = FancyNpcsModelPlugin.get().getFancyLogger();
-        this.translator = FancyNpcsModelPlugin.get().getTranslator();
+        this.config = this.plugin.getFancyNpcsModelConfig();
+        this.logger = this.plugin.getFancyLogger();
+        this.translator = this.plugin.getTranslator();
     }
 
 }

@@ -19,8 +19,9 @@ public class NpcRemoveListener implements Listener {
         // manager no longer owns this object before cancelling pending renders.
         Bukkit.getScheduler().runTask(FancyNpcsModelPlugin.get(), () -> {
             FancyNpcsPlugin fancyNpcs = FancyNpcsPlugin.get();
-            if (fancyNpcs != null && fancyNpcs.getNpcManager().getNpcById(npc.getData().getId()) != npc)
+            if (fancyNpcs != null && fancyNpcs.getNpcManager().getNpcById(npc.getData().getId()) != npc) {
                 CustomModelAttribute.removeModels(npc);
+            }
         });
     }
 

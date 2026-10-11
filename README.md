@@ -1,12 +1,16 @@
 # FancyNpcs-ModelEngine
 
-为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.4-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
+为 FancyNpcs 增加 ModelEngine 模型、动画与玩家交互的定制版，保留 BetterModel 支持。当前版本为 **FancyNpcs 2.12.2-simmc-me.1 + FancyNpcsModel 1.3.5-simmc-me.1**，作者署名：**OliverSchlueter、Loliiiico**。
 
 基于官方稳定版 [FancyNpcs 2.12.1](https://hangar.papermc.io/Oliver/FancyNpcs/versions/2.12.1)，源码基线为 [`d71e17d5`](https://github.com/FancyInnovations/FancyPlugins/tree/d71e17d5aab44218b45c156af6bfa8c9cdd57465)，模型扩展参考上游 [PR #315](https://github.com/FancyInnovations/FancyPlugins/pull/315)。这是独立维护的非官方定制版，版本号为本项目递增。
 
 主插件保留全部 **7 组 NPC NMS + 7 组 packets 实现及源码**，包括 26.x。验证环境为 **Paper 1.21.11、Java 25、ModelEngine R4.1.1**；26.x 的 ME 集成未验证，本 addon 不支持 Folia。
 
 `1.3.4` 将周期扫描降至主插件的可见性刷新频率，并增加每个 NPC 默认 10 位模型观看者的保护。单元测试共 **85 项**；新 JAR 及对应构建报告输出到 `dist/`，本次仅构建附属插件。原模型眼高、头部绑定与并行微动作的历史验证见 [validation.json](validation.json)，该报告对应 `1.3.3`；实际玩家观看/点击、资源包显示及 11 人以上的显示与补位仍需实服验证。
+
+### 1.3.5：代码规范与内部整理
+
+完整代码规范写入 [AGENTS.md](AGENTS.md)。FancyNpcsModel 的 Java 源码和测试统一显式类型、控制结构大括号、方法间空行及 `this.` 字段访问；减少头部绑定中的 `Optional` 临时变量，简化内部视线计算返回值并保留公共方法签名，按实现类缓存 NPC 实体反射。模型行为、默认配置和已有 NPC 数据沿用上一版；本次验证以单元测试和 JAR 构建为准。
 
 ### 1.3.4：降低模型更新扫描频率
 
@@ -36,7 +40,7 @@ ModelEngine 附属插件的周期玩家扫描、观察者同步、位置/缩放/
 2. 将两个新 JAR 放入服务器 `plugins/`，另行安装 ModelEngine R4.1.1。仅使用 ME 模型时不需要 BetterModel 或 MythicMobs。
 3. 用 Java 25 启动 Paper 1.21.11。模型继续放在 `plugins/ModelEngine/blueprints/npc/`；已有模型与 ME 资源包可以继续使用，首次导入才需 `/meg reload models` 并更新资源包。
 
-从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.4-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。新 JAR 位于本地 `dist/`；GitHub Releases 中的旧版本不包含本次优化。
+从上个定制版升级时，仅替换 FancyNpcsModel 为 `1.3.5-simmc-me.1`；FancyNpcs 核心仍为 `2.12.2-simmc-me.1`。保留 NPC 数据和 `plugins/FancyNpcsModel/config.yml`，启动后自动补齐缺少的配置，无需重新创建 NPC 或更新未改动的模型资源包。新 JAR 位于本地 `dist/`；本次版本包含 `1.3.4` 的扫描优化与观看者保护。
 
 原 FancyNpcs 命令保持可用。下面以 OP 创建测试 NPC；模型需要包含示例使用的 `wave`、`sit`、`idle` 动画：
 
@@ -108,7 +112,7 @@ Gradle 项目位于仓库根目录，包含全部相关 NMS 分支及共享库�
 
 Linux/macOS 使用 `./gradlew`。也可将依赖放入仓库根目录的 `deps/`，文件名与上述示例一致。构建产物位于 `plugins/fancynpcs-v2/build/libs/` 和 `plugins/fancynpcs-model/build/libs/`。
 
-Git 检出使用当前 HEAD 生成元数据；不含 `.git` 的源码归档使用根目录 [SOURCE_COMMIT](SOURCE_COMMIT)。如需复现本次发布元数据，追加 `'-PsourceCommitHash=d71e17d5aab44218b45c156af6bfa8c9cdd57465'`；采用其他提交重新构建时，JAR 哈希会变化，应更新验证报告后再打包。
+Git 检出使用当前 HEAD 生成元数据；不含 `.git` 的源码归档使用根目录 [SOURCE_COMMIT](SOURCE_COMMIT)。复现附属插件的发布元数据时，将 `-PsourceCommitHash` 设置为对应构建报告中的 `source_commit`；复现沿用的核心 JAR 元数据时，使用 `'-PsourceCommitHash=d71e17d5aab44218b45c156af6bfa8c9cdd57465'`。采用其他提交重新构建时，JAR 哈希会变化，应更新验证报告后再打包。
 
 默认构建完整源码。上述 `-PpaperApiVersion=1.21.11-R0.1-SNAPSHOT` 固定本次发布的核心 API；省略时采用上游默认 26.2 API。本次发布构建另使用可选 `-PupstreamNmsJar` 复用官方 2.12.1 JAR 中 **432 个字节保持不变的实现类（7 组 NPC + 7 组 packets）**；核心、API、加载器及插件元数据仍从本项目构建，全部 NMS 源码保留。官方下载地址与哈希记录在 [upstream-release.json](upstream-release.json)。取得对应官方 JAR 后，在仓库根目录使用 Python 3.11+ 提取：
 
@@ -118,7 +122,7 @@ python tools/extract_upstream_nms.py --upstream-jar C:/deps/FancyNpcs-2.12.1.jar
 
 工具验证官方版本、提交、哈希和原始类字节，输出根目录 `build/deps/FancyNpcs-2.12.1-upstream-nms.jar` 及同目录的 `FancyNpcs-2.12.1-upstream-nms.manifest.json`。在上面的 Gradle 命令中追加 `'-PupstreamNmsJar=提取结果的绝对路径'` 即可复现该构建路径；省略则编译全部源码模块。
 
-Windows 中文路径出现启动器问题时，可将 `-Djdk.net.unixdomain.tmpdir` 和可选 `-PtestClasspathDir` 指向短英文目录。完整发布包可在仓库根目录执行 `python tools/package_release.py` 生成到 `dist/`；工具核验当前两个 JAR 与 `validation.json` 的哈希。当前 `validation.json` 保留 `1.3.3` 的历史证据，完整打包前必须收集新版本的验证与哈希；本次单独构建的 `1.3.4` 附属插件使用 `dist/FancyNpcsModel-1.3.4-simmc-me.1-build-report.json` 记录构建证据。依赖、缓存、日志及构建目录不上传。
+Windows 中文路径出现启动器问题时，可将 `-Djdk.net.unixdomain.tmpdir` 和可选 `-PtestClasspathDir` 指向短英文目录。完整发布包可在仓库根目录执行 `python tools/package_release.py` 生成到 `dist/`；工具核验当前两个 JAR 与 `validation.json` 的哈希。当前 `validation.json` 保留 `1.3.3` 的历史证据，完整打包前必须收集新版本的验证与哈希；本次单独构建的 `1.3.5` 附属插件使用 `dist/FancyNpcsModel-1.3.5-simmc-me.1-build-report.json` 记录构建证据。依赖、缓存、日志及构建目录不上传。
 
 ## 许可与来源
 

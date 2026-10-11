@@ -14,29 +14,34 @@ import java.util.Optional;
 
 /** Adds head rotation to an NPC's live bones; never changes the shared blueprint. */
 public final class RuntimeHeadBinding {
-    private RuntimeHeadBinding() { }
+    private RuntimeHeadBinding() {
+    }
 
     public static Optional<ModelBone> install(ActiveModel model, Settings settings) {
         Objects.requireNonNull(model, "model");
         Objects.requireNonNull(settings, "settings");
-        var type = BoneBehaviorTypes.HEAD;
+        BoneBehaviorType<?> type = BoneBehaviorTypes.HEAD;
         // ME installs a hidden, forced HEAD placeholder on ordinary bones too.
         // Only a visible HEAD behavior represents an authored h_/hi_ binding.
         if (!settings.enabled() || model.getBones().values().stream()
-                .anyMatch(bone -> bone.getBoneBehavior(type).filter(behavior -> !behavior.isHidden()).isPresent())) {
-            return Optional.empty(); // Preserve authored h_/hi_ behavior and pivots.
+                .anyMatch(bone -> {
+                    BoneBehavior behavior = bone.getBoneBehavior(type).orElse(null);
+                    return behavior != null && !behavior.isHidden();
+                })) {
+            return Optional.empty();
         }
         for (String name : settings.boneNames()) {
-            Optional<ModelBone> match = model.getBones().values().stream()
-                    .filter(bone -> name.equalsIgnoreCase(bone.getBoneId())).findFirst();
-            if (match.isEmpty() || !type.test(match.get().getImmutableBoneBehaviors().keySet())) continue;
-            ModelBone bone = match.get();
+            ModelBone bone = model.getBones().values().stream()
+                    .filter(candidate -> name.equalsIgnoreCase(candidate.getBoneId())).findFirst().orElse(null);
+            if (bone == null || !type.test(bone.getImmutableBoneBehaviors().keySet())) {
+                continue;
+            }
             // Rotate the parent before evaluating children. Hair and ears
             // inherit this rotation while keeping their local animation offsets.
-            var data = new BoneBehaviorData(Map.of("local", true, "inherited", true));
+            BoneBehaviorData data = new BoneBehaviorData(Map.of("local", true, "inherited", true));
             attach(bone, type, data);
             refreshChildren(bone);
-            return match;
+            return Optional.of(bone);
         }
         return Optional.empty();
     }
@@ -49,7 +54,10 @@ public final class RuntimeHeadBinding {
 
     private static void refreshChildren(ModelBone parent) {
         for (ModelBone child : parent.getChildren().values()) {
-            child.getBoneBehavior(BoneBehaviorTypes.HEAD).ifPresent(behavior -> behavior.onParentSwap(parent));
+            BoneBehavior behavior = child.getBoneBehavior(BoneBehaviorTypes.HEAD).orElse(null);
+            if (behavior != null) {
+                behavior.onParentSwap(parent);
+            }
             refreshChildren(child);
         }
     }

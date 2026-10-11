@@ -17,18 +17,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercises action ownership and scheduling without a Minecraft server or an ME singleton. */
 class ModelEngineAnimationControllerTest {
-    @Test void initialAmbientLayersStayIndependentAndHealthyLoopsNeverRestart() {
+    @Test
+    void initialAmbientLayersStayIndependentAndHealthyLoopsNeverRestart() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
         assertEquals(Map.of(ModelState.IDLE, "idle", ModelState.WALK, "walk", ModelState.JUMP, "jump", ModelState.DEATH, "death"), backend.defaults);
         assertEquals(List.of("ribbon_sway", "tail_hair_sway", "blink"), backend.plays.stream().map(track -> track.name).toList());
         assertTrue(backend.plays.stream().allMatch(track -> !track.force && track.loop == BlueprintAnimation.LoopMode.LOOP));
-        for (int tick = 0; tick < 1000; tick++) controller.update(tick);
+        for (int tick = 0; tick < 1000; tick++) {
+            controller.update(tick);
+        }
         assertEquals(3, backend.plays.size(), "Automatic default idle must not be played as an extra manual loop");
         assertEquals(0, backend.stops.size());
     }
 
-    @Test void onceGestureUsesOnceEvenForAHoldingBlueprintAndReturnsToExistingDefault() {
+    @Test
+    void onceGestureUsesOnceEvenForAHoldingBlueprintAndReturnsToExistingDefault() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
         assertTrue(controller.play("wave", false));
@@ -44,7 +48,8 @@ class ModelEngineAnimationControllerTest {
         assertEquals(0, backend.plays.stream().filter(track -> track.name.equals("idle")).count());
     }
 
-    @Test void sameNameReplayCannotStopTheNewPropertyAndCancelledReplacementKeepsOldPose() {
+    @Test
+    void sameNameReplayCannotStopTheNewPropertyAndCancelledReplacementKeepsOldPose() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
         assertTrue(controller.play("wave", false));
@@ -63,7 +68,8 @@ class ModelEngineAnimationControllerTest {
         assertTrue(backend.stops.stream().noneMatch(track -> track.priority <= 3));
     }
 
-    @Test void idleWithOrWithoutLoopClearsHeldPoseAndDoesNotDuplicateAutomaticIdle() {
+    @Test
+    void idleWithOrWithoutLoopClearsHeldPoseAndDoesNotDuplicateAutomaticIdle() {
         for (boolean idleLoop : List.of(false, true)) {
             FakeBackend backend = new FakeBackend();
             ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
@@ -78,7 +84,8 @@ class ModelEngineAnimationControllerTest {
         }
     }
 
-    @Test void oneShotPoseIsActiveWithoutBeingHeldAndEndsCleanly() {
+    @Test
+    void oneShotPoseIsActiveWithoutBeingHeldAndEndsCleanly() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
         assertTrue(controller.play("sit", false));
@@ -90,7 +97,8 @@ class ModelEngineAnimationControllerTest {
         assertEquals(3, backend.layers.values().stream().filter(track -> track.priority <= 3).count());
     }
 
-    @Test void optionalRandomGesturesRespectPauseAndCanOverlayPoseWithoutCancellingIt() {
+    @Test
+    void optionalRandomGesturesRespectPauseAndCanOverlayPoseWithoutCancellingIt() {
         for (boolean pauseDuringPose : List.of(false, true)) {
             FakeBackend backend = new FakeBackend();
             ModelEngineAnimationController controller = controller(backend, randomSettings(pauseDuringPose));
@@ -102,11 +110,14 @@ class ModelEngineAnimationControllerTest {
             controller.update(5);
             assertSame(sleep, backend.layers.get(5));
             assertEquals(!pauseDuringPose, backend.layers.containsKey(4));
-            if (!pauseDuringPose) assertEquals("nod", backend.layers.get(4).name);
+            if (!pauseDuringPose) {
+                assertEquals("nod", backend.layers.get(4).name);
+            }
         }
     }
 
-    @Test void disablingAmbientLeavesDefaultStatesAndManualCommandsAvailable() {
+    @Test
+    void disablingAmbientLeavesDefaultStatesAndManualCommandsAvailable() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationSettings defaults = ModelEngineAnimationSettings.defaults();
         ModelEngineAnimationController controller = controller(backend, defaults);
@@ -119,7 +130,8 @@ class ModelEngineAnimationControllerTest {
         assertEquals(Set.of(4), backend.layers.keySet());
     }
 
-    @Test void missingOptionalLoopsAreSkippedAndClosePreservesExternalProperties() {
+    @Test
+    void missingOptionalLoopsAreSkippedAndClosePreservesExternalProperties() {
         FakeBackend backend = new FakeBackend();
         backend.names.remove("blink");
         ModelEngineAnimationController controller = controller(backend, ModelEngineAnimationSettings.defaults());
@@ -134,7 +146,8 @@ class ModelEngineAnimationControllerTest {
         assertEquals(1, backend.defaultsRestored);
     }
 
-    @Test void invalidBlendAndCollidingLayersAreRejectedBeforePlayingAnything() {
+    @Test
+    void invalidBlendAndCollidingLayersAreRejectedBeforePlayingAnything() {
         assertThrows(IllegalArgumentException.class, () -> new ModelEngineAnimationSettings.Blend(Double.NaN, 0, 1));
         assertThrows(IllegalArgumentException.class, () -> new ModelEngineAnimationSettings.Blend(0, 0, 0));
         ModelEngineAnimationSettings defaults = ModelEngineAnimationSettings.defaults();
@@ -143,7 +156,8 @@ class ModelEngineAnimationControllerTest {
                 defaults.gesture(), defaults.pose(), defaults.poseAnimations(), defaults.headTrackingPauseAnimations(), true, defaults.randomGestures()));
     }
 
-    @Test void sameSettingsAppliedEveryTickPreserveHeldPoseAndAmbientTimelines() {
+    @Test
+    void sameSettingsAppliedEveryTickPreserveHeldPoseAndAmbientTimelines() {
         FakeBackend backend = new FakeBackend();
         ModelEngineAnimationSettings settings = ModelEngineAnimationSettings.defaults();
         ModelEngineAnimationController controller = controller(backend, settings);
@@ -179,27 +193,50 @@ class ModelEngineAnimationControllerTest {
         final List<FakeTrack> stops = new ArrayList<>();
         int defaultsRestored;
 
-        @Override public boolean hasAnimation(String name) { return names.contains(name); }
-        @Override public void setDefault(ModelState state, String name, ModelEngineAnimationSettings.Blend blend) { defaults.put(state, name); }
-        @Override public ModelEngineAnimationController.Track play(String name, ModelEngineAnimationSettings.Motion motion, BlueprintAnimation.LoopMode loop, boolean force) {
-            if (reject.contains(name) || (!force && layers.containsKey(motion.priority()))) return null;
+        @Override
+        public boolean hasAnimation(String name) {
+            return this.names.contains(name);
+        }
+
+        @Override
+        public void setDefault(ModelState state, String name, ModelEngineAnimationSettings.Blend blend) {
+            this.defaults.put(state, name);
+        }
+
+        @Override
+        public ModelEngineAnimationController.Track play(String name, ModelEngineAnimationSettings.Motion motion, BlueprintAnimation.LoopMode loop, boolean force) {
+            if (this.reject.contains(name) || (!force && this.layers.containsKey(motion.priority()))) {
+                return null;
+            }
+
             FakeTrack track = new FakeTrack(name, motion, loop, force);
-            layers.put(motion.priority(), track);
-            plays.add(track);
+            this.layers.put(motion.priority(), track);
+            this.plays.add(track);
             return track;
         }
-        @Override public boolean isCurrent(ModelEngineAnimationController.Track track) {
+
+        @Override
+        public boolean isCurrent(ModelEngineAnimationController.Track track) {
             FakeTrack fake = (FakeTrack) track;
-            return layers.get(fake.priority) == fake;
+            return this.layers.get(fake.priority) == fake;
         }
-        @Override public void stop(ModelEngineAnimationController.Track track, boolean immediate) {
+
+        @Override
+        public void stop(ModelEngineAnimationController.Track track, boolean immediate) {
             FakeTrack fake = (FakeTrack) track;
-            if (!isCurrent(fake)) return;
-            layers.remove(fake.priority);
+            if (!isCurrent(fake)) {
+                return;
+            }
+            this.layers.remove(fake.priority);
             fake.ended = true;
-            stops.add(fake);
+            this.stops.add(fake);
         }
-        @Override public void restoreDefaults() { defaultsRestored++; defaults.clear(); }
+
+        @Override
+        public void restoreDefaults() {
+            this.defaultsRestored++;
+            this.defaults.clear();
+        }
     }
 
     private static final class FakeTrack implements ModelEngineAnimationController.Track {
@@ -209,11 +246,28 @@ class ModelEngineAnimationControllerTest {
         final BlueprintAnimation.LoopMode loop;
         final boolean force;
         boolean ended;
+
         FakeTrack(String name, ModelEngineAnimationSettings.Motion motion, BlueprintAnimation.LoopMode loop, boolean force) {
-            this.name = name; this.priority = motion.priority(); this.motion = motion; this.loop = loop; this.force = force;
+            this.name = name;
+            this.priority = motion.priority();
+            this.motion = motion;
+            this.loop = loop;
+            this.force = force;
         }
-        @Override public String animation() { return name; }
-        @Override public BlueprintAnimation.LoopMode loopMode() { return loop; }
-        @Override public boolean isEnded() { return ended; }
+
+        @Override
+        public String animation() {
+            return this.name;
+        }
+
+        @Override
+        public BlueprintAnimation.LoopMode loopMode() {
+            return this.loop;
+        }
+
+        @Override
+        public boolean isEnded() {
+            return this.ended;
+        }
     }
 }

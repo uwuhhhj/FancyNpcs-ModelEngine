@@ -21,15 +21,15 @@ class ModelProviderRegistryTest {
 
     @BeforeEach
     void saveRegistry() throws ReflectiveOperationException {
-        providerField = ModelProviderRegistry.class.getDeclaredField("providers");
-        providerField.setAccessible(true);
-        originalProviders = providerField.get(null);
+        this.providerField = ModelProviderRegistry.class.getDeclaredField("providers");
+        this.providerField.setAccessible(true);
+        this.originalProviders = this.providerField.get(null);
         providers();
     }
 
     @AfterEach
     void restoreRegistry() throws ReflectiveOperationException {
-        providerField.set(null, originalProviders);
+        this.providerField.set(null, this.originalProviders);
     }
 
     @Test
@@ -76,8 +76,9 @@ class ModelProviderRegistryTest {
     @Test
     void malformedAndUnknownProviderPrefixesNeverFallBackToAnotherProvider() throws Exception {
         providers(modelEngine());
-        for (String value : List.of("", " ", ":fox", "me:", "unknown:fox", "bm:fox", "me:missing"))
+        for (String value : List.of("", " ", ":fox", "me:", "unknown:fox", "bm:fox", "me:missing")) {
             assertNull(ModelProviderRegistry.resolve(value), value);
+        }
         assertNull(ModelProviderRegistry.resolve(null));
     }
 
@@ -113,7 +114,7 @@ class ModelProviderRegistryTest {
     }
 
     private void providers(ModelProvider... values) throws ReflectiveOperationException {
-        providerField.set(null, List.of(values));
+        this.providerField.set(null, List.of(values));
     }
 
     private static FakeProvider modelEngine() {
@@ -131,24 +132,75 @@ class ModelProviderRegistryTest {
         private boolean failRemove, failClose;
         private int removals, closes;
 
-        private FakeProvider(String id, List<String> prefixes) { this.id = id; this.prefixes = prefixes; }
-        @Override public String getId() { return id; }
-        @Override public String getDisplayName() { return id; }
-        @Override public Collection<String> getPrefixes() { return prefixes; }
-        @Override public Collection<String> getModelNames() { return models; }
-        @Override public boolean hasModel(String name) { return models.contains(name); }
-        @Override public void applyModel(Npc npc, String name) { fail("No test should apply a live NPC model"); }
-        @Override public void removeModel(Npc npc) {
-            removals++;
-            if (failRemove) throw new IllegalStateException("test removal failure");
+        private FakeProvider(String id, List<String> prefixes) {
+            this.id = id;
+            this.prefixes = prefixes;
         }
-        @Override public boolean hasModelApplied(Npc npc) { return false; }
-        @Override public boolean playAnimation(Npc npc, String name, boolean loop) { return false; }
-        @Override public Collection<String> getAnimationNames(Npc npc) { return List.of(); }
-        @Override public boolean shouldCancelNativeInteraction() { return false; }
-        @Override public void shutdown() {
-            closes++;
-            if (failClose) throw new IllegalStateException("test close failure");
+
+        @Override
+        public String getId() {
+            return this.id;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return this.id;
+        }
+
+        @Override
+        public Collection<String> getPrefixes() {
+            return this.prefixes;
+        }
+
+        @Override
+        public Collection<String> getModelNames() {
+            return this.models;
+        }
+
+        @Override
+        public boolean hasModel(String name) {
+            return this.models.contains(name);
+        }
+
+        @Override
+        public void applyModel(Npc npc, String name) {
+            fail("No test should apply a live NPC model");
+        }
+
+        @Override
+        public void removeModel(Npc npc) {
+            this.removals++;
+            if (this.failRemove) {
+                throw new IllegalStateException("test removal failure");
+            }
+        }
+
+        @Override
+        public boolean hasModelApplied(Npc npc) {
+            return false;
+        }
+
+        @Override
+        public boolean playAnimation(Npc npc, String name, boolean loop) {
+            return false;
+        }
+
+        @Override
+        public Collection<String> getAnimationNames(Npc npc) {
+            return List.of();
+        }
+
+        @Override
+        public boolean shouldCancelNativeInteraction() {
+            return false;
+        }
+
+        @Override
+        public void shutdown() {
+            this.closes++;
+            if (this.failClose) {
+                throw new IllegalStateException("test close failure");
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ public class PlayAnimationCMD extends FancyContext {
     ) {
         ModelProvider provider = ModelProviderRegistry.getActiveProvider(npc);
         if (!CustomModelAttribute.hasAttribute(npc) || provider == null) {
-            translator.translate("commands.npc.play_animation.no_model_assigned")
+            super.translator.translate("commands.npc.play_animation.no_model_assigned")
                     .withPrefix()
                     .replace("npc", npc.getData().getName())
                     .send(sender);
@@ -43,7 +43,7 @@ public class PlayAnimationCMD extends FancyContext {
         }
 
         if (!provider.playAnimation(npc, animation, loop)) {
-            translator.translate("commands.npc.play_animation.failed")
+            super.translator.translate("commands.npc.play_animation.failed")
                     .withPrefix()
                     .replace("npc", npc.getData().getName())
                     .replace("animation", animation)
@@ -51,7 +51,7 @@ public class PlayAnimationCMD extends FancyContext {
             return;
         }
 
-        translator.translate("commands.npc.play_animation.playing")
+        super.translator.translate("commands.npc.play_animation.playing")
                 .withPrefix()
                 .replace("npc", npc.getData().getName())
                 .replace("animation", animation)
@@ -62,7 +62,9 @@ public class PlayAnimationCMD extends FancyContext {
     public List<String> suggestAnimations(final CommandContext<CommandSender> context, final CommandInput input) {
         Npc npc = context.get("npc");
         ModelProvider provider = ModelProviderRegistry.getActiveProvider(npc);
-        if (provider == null) return new ArrayList<>();
+        if (provider == null) {
+            return new ArrayList<>();
+        }
 
         return new ArrayList<>(provider.getAnimationNames(npc));
     }

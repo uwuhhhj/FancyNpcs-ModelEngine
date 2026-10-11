@@ -75,7 +75,9 @@ public final class ModelProviderRegistry {
 
         int colon = value.indexOf(':');
         if (colon >= 0) {
-            if (colon == 0 || colon == value.length() - 1) return null;
+            if (colon == 0 || colon == value.length() - 1) {
+                return null;
+            }
             String prefix = value.substring(0, colon).toLowerCase(Locale.ROOT);
             String modelName = value.substring(colon + 1);
 
@@ -118,11 +120,16 @@ public final class ModelProviderRegistry {
             try {
                 provider.removeModel(npc);
             } catch (RuntimeException | LinkageError error) {
-                if (failure == null) failure = new IllegalStateException("Failed to remove NPC models", error);
-                else failure.addSuppressed(error);
+                if (failure == null) {
+                    failure = new IllegalStateException("Failed to remove NPC models", error);
+                } else {
+                    failure.addSuppressed(error);
+                }
             }
         }
-        if (failure != null) throw failure;
+        if (failure != null) {
+            throw failure;
+        }
     }
 
     /**
@@ -154,7 +161,9 @@ public final class ModelProviderRegistry {
             try {
                 provider.shutdown();
             } catch (RuntimeException | LinkageError error) {
-                if (logger != null) logger.error("Failed to close " + provider.getDisplayName() + ": " + error);
+                if (logger != null) {
+                    logger.error("Failed to close " + provider.getDisplayName() + ": " + error);
+                }
             }
         }
     }

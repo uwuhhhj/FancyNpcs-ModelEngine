@@ -10,7 +10,9 @@ class ModelRefreshCadenceTest {
         ModelRefreshCadence cadence = new ModelRefreshCadence();
         int refreshes = 0;
         for (int tick = 0; tick < 200; tick++) {
-            if (cadence.shouldRefresh(tick, 20)) refreshes++;
+            if (cadence.shouldRefresh(tick, 20)) {
+                refreshes++;
+            }
         }
         assertEquals(10, refreshes);
     }
@@ -19,7 +21,9 @@ class ModelRefreshCadenceTest {
     void fiveSecondCoreIntervalIsRespected() {
         ModelRefreshCadence cadence = new ModelRefreshCadence();
         assertTrue(cadence.shouldRefresh(10, 100));
-        for (int tick = 11; tick < 110; tick++) assertFalse(cadence.shouldRefresh(tick, 100));
+        for (int tick = 11; tick < 110; tick++) {
+            assertFalse(cadence.shouldRefresh(tick, 100));
+        }
         assertTrue(cadence.shouldRefresh(110, 100));
     }
 
@@ -28,7 +32,9 @@ class ModelRefreshCadenceTest {
         for (int configured : new int[]{-1, 0, 1, 3, 19}) {
             ModelRefreshCadence cadence = new ModelRefreshCadence();
             assertTrue(cadence.shouldRefresh(0, configured));
-            for (int tick = 1; tick < 20; tick++) assertFalse(cadence.shouldRefresh(tick, configured));
+            for (int tick = 1; tick < 20; tick++) {
+                assertFalse(cadence.shouldRefresh(tick, configured));
+            }
             assertTrue(cadence.shouldRefresh(20, configured));
         }
     }

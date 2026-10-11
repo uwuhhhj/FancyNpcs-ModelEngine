@@ -40,7 +40,9 @@ public class CustomModelAttribute {
 
     private static void setModel(Npc npc, String modelName) {
         FancyNpcsModelPlugin plugin = FancyNpcsModelPlugin.get();
-        if (plugin == null || !plugin.isEnabled() || ModelProviderRegistry.isEmpty()) return;
+        if (plugin == null || !plugin.isEnabled() || ModelProviderRegistry.isEmpty()) {
+            return;
+        }
         if (Bukkit.isPrimaryThread()) {
             applyCurrent(npc, modelName);
             return;
@@ -50,16 +52,22 @@ public class CustomModelAttribute {
         synchronized (pending) {
             boolean queued = pending.containsKey(npc);
             pending.put(npc, modelName);
-            if (queued) return;
+            if (queued) {
+                return;
+            }
         }
         try {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 String value;
                 synchronized (pending) {
-                    if (!pending.containsKey(npc)) return;
+                    if (!pending.containsKey(npc)) {
+                        return;
+                    }
                     value = pending.remove(npc);
                 }
-                if (plugin.isEnabled()) applyCurrent(npc, value);
+                if (plugin.isEnabled()) {
+                    applyCurrent(npc, value);
+                }
             });
         } catch (RuntimeException error) {
             // The plugin can be disabled after the NPC thread's enabled check.
@@ -67,8 +75,9 @@ public class CustomModelAttribute {
             synchronized (pending) {
                 pending.remove(npc);
             }
-            if (plugin.isEnabled())
+            if (plugin.isEnabled()) {
                 plugin.getFancyLogger().error("Failed to schedule NPC model update: " + error);
+            }
         }
     }
 
@@ -77,7 +86,9 @@ public class CustomModelAttribute {
         // A reload can replace an NPC with another object sharing the same id.
         // A queued update must also match the latest persistent attribute value.
         if (fancyNpcs == null || fancyNpcs.getNpcManager().getNpcById(npc.getData().getId()) != npc
-                || !Objects.equals(modelName, storedValue(npc))) return;
+                || !Objects.equals(modelName, storedValue(npc))) {
+            return;
+        }
         try {
             applyModel(npc, modelName);
         } catch (RuntimeException | LinkageError error) {
@@ -117,7 +128,9 @@ public class CustomModelAttribute {
     }
 
     private static void reportFailure(Npc npc, String modelName, String message) {
-        if (reportedFailures.containsKey(npc) && Objects.equals(reportedFailures.get(npc), modelName)) return;
+        if (reportedFailures.containsKey(npc) && Objects.equals(reportedFailures.get(npc), modelName)) {
+            return;
+        }
         reportedFailures.put(npc, modelName);
         FancyNpcsModelPlugin.get().getFancyLogger().error(message,
                 StringProperty.of("model_name", Objects.toString(modelName, "@none")),
@@ -125,11 +138,15 @@ public class CustomModelAttribute {
     }
 
     public static void restoreStoredModel(Npc npc) {
-        if (hasAttribute(npc)) setModel(npc, storedValue(npc));
+        if (hasAttribute(npc)) {
+            setModel(npc, storedValue(npc));
+        }
     }
 
     public static void clearPending() {
-        synchronized (pending) { pending.clear(); }
+        synchronized (pending) {
+            pending.clear();
+        }
         reportedFailures.clear();
     }
 
@@ -138,7 +155,9 @@ public class CustomModelAttribute {
      * This is necessary to prevent old models still existing in the world.
      */
     public static void removeModels(Npc npc) {
-        synchronized (pending) { pending.remove(npc); }
+        synchronized (pending) {
+            pending.remove(npc);
+        }
         reportedFailures.remove(npc);
         ModelProviderRegistry.removeFromAll(npc);
     }

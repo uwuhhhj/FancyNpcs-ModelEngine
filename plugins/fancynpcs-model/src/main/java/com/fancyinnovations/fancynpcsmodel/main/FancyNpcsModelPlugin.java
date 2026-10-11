@@ -49,6 +49,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
 
     private static FancyNpcsModelPlugin INSTANCE;
+    private static final boolean FOLIA = isFolia();
     private final ExtendedFancyLogger fancyLogger;
 
     private FancyNpcsModelConfigImpl fancyNpcsModelConfig;
@@ -91,61 +92,61 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onLoad() {
-        fancyLogger.info("Loading FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
+        this.fancyLogger.info("Loading FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
 
         // Config
-        fancyNpcsModelConfig = new FancyNpcsModelConfigImpl();
-        fancyNpcsModelConfig.init();
-        fancyNpcsModelConfig.reload();
+        this.fancyNpcsModelConfig = new FancyNpcsModelConfigImpl();
+        this.fancyNpcsModelConfig.init();
+        this.fancyNpcsModelConfig.reload();
 
         LogLevel logLevel;
         try {
-            logLevel = LogLevel.valueOf(fancyNpcsModelConfig.getLogLevel());
+            logLevel = LogLevel.valueOf(this.fancyNpcsModelConfig.getLogLevel());
         } catch (IllegalArgumentException e) {
             logLevel = LogLevel.INFO;
         }
-        fancyLogger.setCurrentLevel(logLevel);
+        this.fancyLogger.setCurrentLevel(logLevel);
 
         // Version checking
-        versionFetcher = new FancySpacesVersionFetcher("FancyNpcsModel");
-        versionConfig = new VersionConfig(this, versionFetcher);
-        versionConfig.load();
+        this.versionFetcher = new FancySpacesVersionFetcher("FancyNpcsModel");
+        this.versionConfig = new VersionConfig(this, this.versionFetcher);
+        this.versionConfig.load();
 
         // Translator
         registerTranslator();
 
         // Metrics
-        metrics = new FNMMetrics();
+        this.metrics = new FNMMetrics();
 
-        fancyLogger.info("Successfully loaded FancyNpcsModel version %s".formatted(getDescription().getVersion()));
+        this.fancyLogger.info("Successfully loaded FancyNpcsModel version %s".formatted(getDescription().getVersion()));
     }
 
     @Override
     public void onEnable() {
-        fancyLogger.info("Enabling FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
+        this.fancyLogger.info("Enabling FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
 
-        if (isFolia()) {
-            fancyLogger.error("FancyNpcsModel requires the Paper main-thread scheduler; Folia is not supported.");
+        if (FOLIA) {
+            this.fancyLogger.error("FancyNpcsModel requires the Paper main-thread scheduler; Folia is not supported.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
         if (!Bukkit.getPluginManager().isPluginEnabled("FancyNpcs")) {
-            fancyLogger.error("FancyNpcs must be enabled before FancyNpcsModel.");
+            this.fancyLogger.error("FancyNpcs must be enabled before FancyNpcsModel.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        fancyNpcs = FancyNpcsPlugin.get();
-        if (fancyNpcs == null) {
-            fancyLogger.error("The installed FancyNpcs plugin does not expose the v2 API.");
+        this.fancyNpcs = FancyNpcsPlugin.get();
+        if (this.fancyNpcs == null) {
+            this.fancyLogger.error("The installed FancyNpcs plugin does not expose the v2 API.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
-        if (!fancyNpcsModelConfig.areVersionNotificationsMuted()) {
+        if (!this.fancyNpcsModelConfig.areVersionNotificationsMuted()) {
             checkForNewerVersion();
         }
-        if (versionConfig.isDevelopmentBuild()) {
-            fancyLogger.warn("""
+        if (this.versionConfig.isDevelopmentBuild()) {
+            this.fancyLogger.warn("""
                     
                     --------------------------------------------------
                     You are using a development build of FancyNpcsModel.
@@ -156,9 +157,9 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
                     """);
         }
 
-        ModelProviderRegistry.init(fancyLogger);
+        ModelProviderRegistry.init(this.fancyLogger);
         if (ModelProviderRegistry.isEmpty()) {
-            fancyLogger.error("""
+            this.fancyLogger.error("""
 
                     --------------------------------------------------
                     No supported model plugin was found.
@@ -173,70 +174,79 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
 
         // Register attributes and actions before FancyNpcs validates persistent
         // NPC data; restore already-loaded NPCs through the same event path.
-        NpcAttribute existing = fancyNpcs.getAttributeManager().getAttributeByName(EntityType.PLAYER, CustomModelAttribute.ATTRIBUTE_NAME);
-        if (existing != null && existing != modelAttribute) {
-            fancyLogger.error("custom_model is already registered. Remove duplicate addons and restart the server.");
+        NpcAttribute existing = this.fancyNpcs.getAttributeManager().getAttributeByName(EntityType.PLAYER, CustomModelAttribute.ATTRIBUTE_NAME);
+        if (existing != null && existing != this.modelAttribute) {
+            this.fancyLogger.error("custom_model is already registered. Remove duplicate addons and restart the server.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        if (modelAttribute == null) modelAttribute = CustomModelAttribute.getModelAttribute();
-        if (existing == null) fancyNpcs.getAttributeManager().registerAttribute(modelAttribute);
-        onceAction = new PlayAnimationOnceAction();
-        loopAction = new PlayAnimationLoopAction();
-        fancyNpcs.getActionManager().registerAction(onceAction);
-        fancyNpcs.getActionManager().registerAction(loopAction);
+        if (this.modelAttribute == null) {
+            this.modelAttribute = CustomModelAttribute.getModelAttribute();
+        }
+        if (existing == null) {
+            this.fancyNpcs.getAttributeManager().registerAttribute(this.modelAttribute);
+        }
+        this.onceAction = new PlayAnimationOnceAction();
+        this.loopAction = new PlayAnimationLoopAction();
+        this.fancyNpcs.getActionManager().registerAction(this.onceAction);
+        this.fancyNpcs.getActionManager().registerAction(this.loopAction);
 
         registerCommands();
         registerListeners();
-        if (fancyNpcs.getNpcManager().isLoaded()) queueModelRestore();
-
-        try {
-            metrics.register();
-            metrics.checkIfPluginVersionUpdated();
-        } catch (RuntimeException error) {
-            fancyLogger.warn("Metrics could not start; model integration remains enabled: " + error);
+        if (this.fancyNpcs.getNpcManager().isLoaded()) {
+            queueModelRestore();
         }
 
-        fancyLogger.info("Successfully enabled FancyNpcsModel version %s".formatted(getDescription().getVersion()));
+        try {
+            this.metrics.register();
+            this.metrics.checkIfPluginVersionUpdated();
+        } catch (RuntimeException error) {
+            this.fancyLogger.warn("Metrics could not start; model integration remains enabled: " + error);
+        }
+
+        this.fancyLogger.info("Successfully enabled FancyNpcsModel version %s".formatted(getDescription().getVersion()));
     }
 
     @Override
     public void onDisable() {
-        fancyLogger.info("Disabling FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
+        this.fancyLogger.info("Disabling FancyNpcsModel version %s...".formatted(getDescription().getVersion()));
 
-        if (restoreTask != null) {
-            restoreTask.cancel();
-            restoreTask = null;
+        if (this.restoreTask != null) {
+            this.restoreTask.cancel();
+            this.restoreTask = null;
         }
         CustomModelAttribute.clearPending();
         try {
-            if (!ModelProviderRegistry.isEmpty() && fancyNpcs != null) {
-                for (Npc npc : List.copyOf(fancyNpcs.getNpcManager().getAllNpcs())) {
+            if (!ModelProviderRegistry.isEmpty() && this.fancyNpcs != null) {
+                for (Npc npc : List.copyOf(this.fancyNpcs.getNpcManager().getAllNpcs())) {
                     try {
-                        if (CustomModelAttribute.hasAttribute(npc) || ModelProviderRegistry.getActiveProvider(npc) != null)
+                        if (CustomModelAttribute.hasAttribute(npc) || ModelProviderRegistry.getActiveProvider(npc) != null) {
                             CustomModelAttribute.removeModels(npc);
+                        }
                     } catch (RuntimeException | LinkageError error) {
-                        fancyLogger.error("Failed to release model for NPC " + npc.getData().getName() + ": " + error);
+                        this.fancyLogger.error("Failed to release model for NPC " + npc.getData().getName() + ": " + error);
                     }
                 }
             }
         } finally {
             ModelProviderRegistry.shutdown();
-            if (fancyNpcs != null) {
-                unregisterAction(onceAction);
-                unregisterAction(loopAction);
+            if (this.fancyNpcs != null) {
+                unregisterAction(this.onceAction);
+                unregisterAction(this.loopAction);
             }
         }
 
-        fancyLogger.info("Successfully disabled FancyNpcsModel version %s".formatted(getDescription().getVersion()));
+        this.fancyLogger.info("Successfully disabled FancyNpcsModel version %s".formatted(getDescription().getVersion()));
     }
 
     private void unregisterAction(NpcAction action) {
-        if (action == null) return;
+        if (action == null) {
+            return;
+        }
         try {
-            fancyNpcs.getActionManager().unregisterAction(action);
+            this.fancyNpcs.getActionManager().unregisterAction(action);
         } catch (RuntimeException | LinkageError error) {
-            fancyLogger.error("Failed to unregister model animation action: " + error);
+            this.fancyLogger.error("Failed to unregister model animation action: " + error);
         }
     }
 
@@ -251,12 +261,12 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
 
     private void registerCommands() {
         // fancynpcsmodel commands
-        fancyNpcs.registerCommand(FNMConfigCMD.INSTANCE);
-        fancyNpcs.registerCommand(FNMVersionCMD.INSTANCE);
+        this.fancyNpcs.registerCommand(FNMConfigCMD.INSTANCE);
+        this.fancyNpcs.registerCommand(FNMVersionCMD.INSTANCE);
 
         // npc commands
-        fancyNpcs.registerCommand(CustomModelCMD.INSTANCE);
-        fancyNpcs.registerCommand(PlayAnimationCMD.INSTANCE);
+        this.fancyNpcs.registerCommand(CustomModelCMD.INSTANCE);
+        this.fancyNpcs.registerCommand(PlayAnimationCMD.INSTANCE);
     }
 
     private void registerListeners() {
@@ -278,17 +288,22 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
     }
 
     private void queueModelRestore() {
-        if (restoreTask != null || !isEnabled()) return;
-        restoreTask = Bukkit.getScheduler().runTask(this, () -> {
-            restoreTask = null;
-            if (!isEnabled() || fancyNpcs == null) return;
-            for (Npc npc : List.copyOf(fancyNpcs.getNpcManager().getAllNpcs()))
+        if (this.restoreTask != null || !isEnabled()) {
+            return;
+        }
+        this.restoreTask = Bukkit.getScheduler().runTask(this, () -> {
+            this.restoreTask = null;
+            if (!isEnabled() || this.fancyNpcs == null) {
+                return;
+            }
+            for (Npc npc : List.copyOf(this.fancyNpcs.getNpcManager().getAllNpcs())) {
                 CustomModelAttribute.restoreStoredModel(npc);
+            }
         });
     }
 
     public void registerTranslator() {
-        translator = new Translator(
+        this.translator = new Translator(
                 new TextConfig(
                         "#ffcc24", // color to highlight important information
                         "gray", // text color for regular messages
@@ -299,23 +314,26 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
                 )
         );
 
-        translator.loadLanguages(getDataFolder().getAbsolutePath());
-        Language selectedLanguage = translator.getLanguages().stream()
-                .filter(language -> language.getLanguageName().equals(fancyNpcsModelConfig.getLanguage()))
-                .findFirst()
-                .orElse(translator.getFallbackLanguage());
-        translator.setSelectedLanguage(selectedLanguage);
+        this.translator.loadLanguages(getDataFolder().getAbsolutePath());
+        Language selectedLanguage = this.translator.getFallbackLanguage();
+        for (Language language : this.translator.getLanguages()) {
+            if (language.getLanguageName().equals(this.fancyNpcsModelConfig.getLanguage())) {
+                selectedLanguage = language;
+                break;
+            }
+        }
+        this.translator.setSelectedLanguage(selectedLanguage);
     }
 
     private void checkForNewerVersion() {
-        final var current = new ComparableVersion(versionConfig.getVersion());
+        final ComparableVersion current = new ComparableVersion(this.versionConfig.getVersion());
 
         supplyAsync(getVersionFetcher()::fetchNewestVersion).thenApply(Objects::requireNonNull).whenComplete((newest, error) -> {
             if (error != null || newest.compareTo(current) <= 0) {
                 return; // could not get the newest version or already on latest
             }
 
-            fancyLogger.warn("""
+            this.fancyLogger.warn("""
                     
                     -------------------------------------------------------
                     You are not using the latest version of the FancyNpcsModel plugin.
@@ -327,23 +345,23 @@ public class FancyNpcsModelPlugin extends JavaPlugin implements Listener {
     }
 
     public ExtendedFancyLogger getFancyLogger() {
-        return fancyLogger;
+        return this.fancyLogger;
     }
 
     public FancyNpcsModelConfigImpl getFancyNpcsModelConfig() {
-        return fancyNpcsModelConfig;
+        return this.fancyNpcsModelConfig;
     }
 
     public VersionFetcher getVersionFetcher() {
-        return versionFetcher;
+        return this.versionFetcher;
     }
 
     public VersionConfig getVersionConfig() {
-        return versionConfig;
+        return this.versionConfig;
     }
 
     public Translator getTranslator() {
-        return translator;
+        return this.translator;
     }
 
 }

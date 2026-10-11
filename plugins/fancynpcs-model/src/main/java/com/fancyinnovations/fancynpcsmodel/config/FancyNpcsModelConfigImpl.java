@@ -27,9 +27,9 @@ public class FancyNpcsModelConfigImpl {
     private static final String ME = "settings.modelengine.";
 
     public void init() {
-        config = new Config(FancyNpcsModelPlugin.get().getFancyLogger(), CONFIG_FILE_PATH);
+        this.config = new Config(FancyNpcsModelPlugin.get().getFancyLogger(), CONFIG_FILE_PATH);
 
-        config.addField(new ConfigField<>(
+        this.config.addField(new ConfigField<>(
                 LOG_LEVEL_PATH,
                 "日志级别：DEBUG、INFO、WARN、ERROR。",
                 false,
@@ -38,7 +38,7 @@ public class FancyNpcsModelConfigImpl {
                 String.class
         ));
 
-        config.addField(new ConfigField<>(
+        this.config.addField(new ConfigField<>(
                 MUTE_VERSION_NOTIFICATION_PATH,
                 "是否屏蔽版本通知；true 屏蔽，false 显示。",
                 false,
@@ -47,7 +47,7 @@ public class FancyNpcsModelConfigImpl {
                 Boolean.class
         ));
 
-        config.addField(new ConfigField<>(
+        this.config.addField(new ConfigField<>(
                 LANGUAGE_PATH,
                 "插件消息使用的语言文件。",
                 false,
@@ -90,8 +90,9 @@ public class FancyNpcsModelConfigImpl {
         number("body-follow.response-per-second", 5, "身体平滑响应系数，越大反应越快。");
         field("body-follow.pause-during-pose", true, Boolean.class, "手动姿态期间暂停转身，头部仍可按设置追踪。");
         field("idle.enabled", true, Boolean.class, "开启并行循环微动作；关闭时也停止随机手势，基础待机保留。");
-        for (String state : List.of("idle", "walk", "jump", "death"))
+        for (String state : List.of("idle", "walk", "jump", "death")) {
             field("idle.default-states." + state, state, String.class, "默认 " + state + " 状态使用的模型动画名。");
+        }
         field("idle.loop-animations", List.of("ribbon_sway", "tail_hair_sway", "blink"), List.class,
                 "按列表顺序分配递增优先级的循环微动作；缺失动画会跳过。");
         field("idle.random-gestures.enabled", false, Boolean.class, "是否偶尔自动播放随机待机手势。");
@@ -111,21 +112,22 @@ public class FancyNpcsModelConfigImpl {
     }
 
     public void reload() {
-        config.reload();
-        viewerProtection = new ViewerProtection(bool("viewer-protection.enabled"),
+        this.config.reload();
+        this.viewerProtection = new ViewerProtection(bool("viewer-protection.enabled"),
                 Math.max(0, integer("viewer-protection.max-viewers-per-npc")));
         double in = value("animations.blend-in-seconds", 0, 5, .05);
         double out = value("animations.blend-out-seconds", 0, 5, .05);
         double speed = value("animations.speed", .05, 10, 1);
-        var blend = new ModelEngineAnimationSettings.Blend(in, out, speed);
+        ModelEngineAnimationSettings.Blend blend = new ModelEngineAnimationSettings.Blend(in, out, speed);
         List<ModelEngineAnimationSettings.LoopAnimation> loops = new ArrayList<>();
         List<String> names = names("idle.loop-animations");
-        for (int i = 0; i < names.size(); i++)
+        for (int i = 0; i < names.size(); i++) {
             loops.add(new ModelEngineAnimationSettings.LoopAnimation(true, names.get(i), i + 1, blend));
+        }
         int min = Math.max(20, Math.min(72000, integer("idle.random-gestures.min-interval-ticks")));
         int max = Math.max(min, Math.min(72000, integer("idle.random-gestures.max-interval-ticks")));
         int gesturePriority = Math.max(4, names.size() + 1);
-        var animation = new ModelEngineAnimationSettings(
+        ModelEngineAnimationSettings animation = new ModelEngineAnimationSettings(
                 bool("idle.enabled"),
                 new ModelEngineAnimationSettings.DefaultStates(text("idle.default-states.idle"), text("idle.default-states.walk"),
                         text("idle.default-states.jump"), text("idle.default-states.death"), blend),
@@ -141,12 +143,12 @@ public class FancyNpcsModelConfigImpl {
         double yawLimit = value("head-tracking.max-yaw-degrees", .1, 150, 65);
         double pitchLimit = value("head-tracking.max-pitch-degrees", .1, 89, 35);
         double bodyStart = value("body-follow.start-angle-degrees", .1, yawLimit, Math.min(35, yawLimit));
-        var body = new SmoothHeadTracking.BodyFollow(bool("body-follow.enabled"), bodyStart,
+        SmoothHeadTracking.BodyFollow body = new SmoothHeadTracking.BodyFollow(bool("body-follow.enabled"), bodyStart,
                 value("body-follow.stop-angle-degrees", 0, Math.max(0, bodyStart - .1), Math.min(2, bodyStart * .5)),
                 value("body-follow.delay-seconds", 0, 30, .3),
                 value("body-follow.yaw-speed-degrees-per-second", 1, 1440, 90),
                 value("body-follow.response-per-second", .1, 100, 5), bool("body-follow.pause-during-pose"));
-        var head = new SmoothHeadTracking.Config(
+        SmoothHeadTracking.Config head = new SmoothHeadTracking.Config(
                 yawLimit, pitchLimit,
                 value("head-tracking.yaw-speed-degrees-per-second", 1, 1440, 180),
                 value("head-tracking.pitch-speed-degrees-per-second", 1, 1440, 120),
@@ -156,7 +158,7 @@ public class FancyNpcsModelConfigImpl {
                 value("head-tracking.minimum-target-hold-seconds", 0, 30, .75),
                 value("head-tracking.lost-target-grace-seconds", 0, 10, .2),
                 value("head-tracking.exit-range-multiplier", 1, 3, 1.15), body);
-        motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation,
+        this.motionSettings = new MotionSettings(bool("head-tracking.enabled"), head, animation,
                 new RuntimeHeadBinding.Settings(bool("head-tracking.runtime-head-bone.enabled"),
                         names("head-tracking.runtime-head-bone.bone-names")),
                 new ModelGazeOrigin.Settings(names("head-tracking.eye-height.bone-names"),
@@ -166,7 +168,7 @@ public class FancyNpcsModelConfigImpl {
     }
 
     private <T> void field(String path, T defaultValue, Class<?> type, String description) {
-        config.addField(new ConfigField<>(ME + path, description, false, defaultValue, false, (Class<T>) type));
+        this.config.addField(new ConfigField<>(ME + path, description, false, defaultValue, false, (Class<T>) type));
     }
 
     private void number(String path, double defaultValue, String description) {
@@ -174,46 +176,63 @@ public class FancyNpcsModelConfigImpl {
     }
 
     private double value(String path, double min, double max, double fallback) {
-        Number number = config.get(ME + path);
+        Number number = this.config.get(ME + path);
         double value = number == null ? fallback : number.doubleValue();
         return Double.isFinite(value) ? Math.max(min, Math.min(max, value)) : fallback;
     }
 
-    private boolean bool(String path) { return config.get(ME + path); }
-    private int integer(String path) { return config.get(ME + path); }
+    private boolean bool(String path) {
+        return this.config.get(ME + path);
+    }
+
+    private int integer(String path) {
+        return this.config.get(ME + path);
+    }
+
     private String text(String path) {
-        String value = ((String) config.get(ME + path)).trim();
+        String value = ((String) this.config.get(ME + path)).trim();
         return value.isEmpty() ? path.substring(path.lastIndexOf('.') + 1) : value;
     }
+
     private List<String> names(String path) {
-        List<?> raw = config.get(ME + path);
+        List<?> raw = this.config.get(ME + path);
         return raw.stream().filter(String.class::isInstance).map(String.class::cast).map(String::trim)
                 .filter(name -> !name.isEmpty()).distinct().toList();
     }
 
-    public MotionSettings getMotionSettings() { return motionSettings; }
-    public ViewerProtection getViewerProtection() { return viewerProtection; }
-    public record ViewerProtection(boolean enabled, int maxViewersPerNpc) {
-        public int capacity() { return enabled ? Math.max(0, maxViewersPerNpc) : Integer.MAX_VALUE; }
+    public MotionSettings getMotionSettings() {
+        return this.motionSettings;
     }
+
+    public ViewerProtection getViewerProtection() {
+        return this.viewerProtection;
+    }
+
+    public record ViewerProtection(boolean enabled, int maxViewersPerNpc) {
+        public int capacity() {
+            return this.enabled ? Math.max(0, this.maxViewersPerNpc) : Integer.MAX_VALUE;
+        }
+    }
+
     public record MotionSettings(boolean headTrackingEnabled, SmoothHeadTracking.Config headTracking,
                                  ModelEngineAnimationSettings animations, RuntimeHeadBinding.Settings headBinding,
-                                 ModelGazeOrigin.Settings gazeOrigin) { }
+                                 ModelGazeOrigin.Settings gazeOrigin) {
+    }
 
     public Config getConfig() {
-        return config;
+        return this.config;
     }
 
     public String getLogLevel() {
-        return config.get(LOG_LEVEL_PATH);
+        return this.config.get(LOG_LEVEL_PATH);
     }
 
     public boolean areVersionNotificationsMuted() {
-        return config.get(MUTE_VERSION_NOTIFICATION_PATH);
+        return this.config.get(MUTE_VERSION_NOTIFICATION_PATH);
     }
 
     public String getLanguage() {
-        return config.get(LANGUAGE_PATH);
+        return this.config.get(LANGUAGE_PATH);
     }
 
 }

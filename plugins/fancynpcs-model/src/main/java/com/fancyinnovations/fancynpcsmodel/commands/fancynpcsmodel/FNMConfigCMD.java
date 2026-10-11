@@ -22,11 +22,11 @@ public class FNMConfigCMD extends FancyContext {
     public void configReload(
             CommandSender sender
     ) {
-        config.reload();
-        logger.setCurrentLevel(LogLevel.valueOf(config.getLogLevel()));
-        plugin.registerTranslator();
+        super.config.reload();
+        super.logger.setCurrentLevel(LogLevel.valueOf(super.config.getLogLevel()));
+        super.plugin.registerTranslator();
 
-        translator.translate("commands.fancynpcsmodel.config.reload.success")
+        super.translator.translate("commands.fancynpcsmodel.config.reload.success")
                 .withPrefix()
                 .send(sender);
     }
@@ -36,12 +36,12 @@ public class FNMConfigCMD extends FancyContext {
     public void show(
             CommandSender sender
     ) {
-        Collection<ConfigField<?>> fields = config.getConfig().getFields().values()
+        Collection<ConfigField<?>> fields = super.config.getConfig().getFields().values()
                 .stream()
                 .sorted(Comparator.comparing(ConfigField::path))
                 .toList();
 
-        translator.translate("commands.fancynpcsmodel.config.show.settings_header")
+        super.translator.translate("commands.fancynpcsmodel.config.show.settings_header")
                 .withPrefix()
                 .send(sender);
 
@@ -50,16 +50,16 @@ public class FNMConfigCMD extends FancyContext {
                 continue;
             }
 
-            translator.translate("commands.fancynpcsmodel.config.show.entry")
+            super.translator.translate("commands.fancynpcsmodel.config.show.entry")
                     .replace("path", field.path().substring("settings.".length()))
-                    .replace("value", config.getConfig().get(field.path()).toString())
+                    .replace("value", super.config.getConfig().get(field.path()).toString())
                     .replace("default", String.valueOf(field.defaultValue()))
                     .send(sender);
         }
 
         sender.sendMessage(" ");
 
-        translator.translate("commands.fancynpcsmodel.config.show.experimental_header")
+        super.translator.translate("commands.fancynpcsmodel.config.show.experimental_header")
                 .withPrefix()
                 .send(sender);
 
@@ -68,9 +68,9 @@ public class FNMConfigCMD extends FancyContext {
                 continue;
             }
 
-            translator.translate("commands.fancynpcsmodel.config.show.entry")
+            super.translator.translate("commands.fancynpcsmodel.config.show.entry")
                     .replace("path", field.path().substring("experimental_features.".length()))
-                    .replace("value", config.getConfig().get(field.path()).toString())
+                    .replace("value", super.config.getConfig().get(field.path()).toString())
                     .replace("default", String.valueOf(field.defaultValue()))
                     .send(sender);
         }

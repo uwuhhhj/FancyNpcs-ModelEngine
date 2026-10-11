@@ -27,13 +27,13 @@ public class FNMVersionCMD extends FancyContext {
         ComparableVersion currentVersion = new ComparableVersion(versionConfig.getVersion());
         ComparableVersion newestVersion = versionFetcher.fetchNewestVersion();
 
-        translator.translate("commands.fancynpcsmodel.version.current_version")
+        super.translator.translate("commands.fancynpcsmodel.version.current_version")
                 .withPrefix()
                 .replace("version", versionConfig.getVersion())
                 .send(sender);
 
         if (newestVersion != null && currentVersion.compareTo(newestVersion) < 0) {
-            translator.translate("commands.fancynpcsmodel.version.version_outdated")
+            super.translator.translate("commands.fancynpcsmodel.version.version_outdated")
                     .withPrefix()
                     .replace("version", versionConfig.getVersion())
                     .replace("latestVersion", newestVersion.toString())

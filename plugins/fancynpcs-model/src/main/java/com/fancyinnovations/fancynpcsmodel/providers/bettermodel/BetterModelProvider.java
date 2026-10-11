@@ -64,14 +64,14 @@ public class BetterModelProvider implements ModelProvider {
             return;
         }
         String npcId = npc.getData().getId();
-        AppliedModel previous = appliedModels.get(npcId);
+        AppliedModel previous = this.appliedModels.get(npcId);
         if (previous != null && previous.npc == npc && previous.entity == bukkitEntity
                 && previous.modelName.equals(modelName) && !previous.tracker.isClosed()) {
             previous.updateScale(npc.getData().getScale());
             return;
         }
         if (previous != null) {
-            appliedModels.remove(npcId, previous);
+            this.appliedModels.remove(npcId, previous);
             previous.tracker.close();
         }
         bukkitEntity.customName(Component.empty());
@@ -95,12 +95,14 @@ public class BetterModelProvider implements ModelProvider {
         // Scale
         AppliedModel applied = new AppliedModel(npc, bukkitEntity, modelName, tracker);
         applied.updateScale(npc.getData().getScale());
-        appliedModels.put(npcId, applied);
+        this.appliedModels.put(npcId, applied);
 
         // Right click on hitbox
         tracker.listenHitBox(HitBoxInteractAtEvent.class, event -> {
             Player player = Bukkit.getPlayer(event.getWho().uuid());
-            if (player == null) return;
+            if (player == null) {
+                return;
+            }
 
             npc.interact(player, ActionTrigger.RIGHT_CLICK);
         });
@@ -108,9 +110,13 @@ public class BetterModelProvider implements ModelProvider {
         // Left click on hitbox
         tracker.listenHitBox(HitBoxDamagedEvent.class, event -> {
             PlatformEntity causingEntity = event.getSource().getCausingEntity();
-            if (causingEntity == null) return;
+            if (causingEntity == null) {
+                return;
+            }
             Player player = Bukkit.getPlayer(causingEntity.uuid());
-            if (player == null) return;
+            if (player == null) {
+                return;
+            }
 
             npc.interact(player, ActionTrigger.LEFT_CLICK);
         });
@@ -123,10 +129,12 @@ public class BetterModelProvider implements ModelProvider {
 
     @Override
     public void removeModel(Npc npc) {
-        AppliedModel applied = appliedModels.get(npc.getData().getId());
+        AppliedModel applied = this.appliedModels.get(npc.getData().getId());
         // Do not let deferred deletion of an old NPC destroy its replacement.
-        if (applied == null || applied.npc != npc) return;
-        appliedModels.remove(npc.getData().getId(), applied);
+        if (applied == null || applied.npc != npc) {
+            return;
+        }
+        this.appliedModels.remove(npc.getData().getId(), applied);
         applied.tracker.close();
         Entity bukkitEntity = NpcEntityAccess.getBukkitEntity(npc);
         if (bukkitEntity == null) {
@@ -181,22 +189,28 @@ public class BetterModelProvider implements ModelProvider {
     }
 
     private @Nullable EntityTracker getEntityTracker(Npc npc) {
-        AppliedModel applied = appliedModels.get(npc.getData().getId());
+        AppliedModel applied = this.appliedModels.get(npc.getData().getId());
         return applied != null && applied.npc == npc && !applied.tracker.isClosed() ? applied.tracker : null;
     }
 
     @Override
     public void shutdown() {
         RuntimeException failure = null;
-        for (AppliedModel applied : List.copyOf(appliedModels.values())) {
-            try { applied.tracker.close(); }
-            catch (RuntimeException error) {
-                if (failure == null) failure = new IllegalStateException("Failed to close BetterModel trackers", error);
-                else failure.addSuppressed(error);
+        for (AppliedModel applied : List.copyOf(this.appliedModels.values())) {
+            try {
+                applied.tracker.close();
+            } catch (RuntimeException error) {
+                if (failure == null) {
+                    failure = new IllegalStateException("Failed to close BetterModel trackers", error);
+                } else {
+                    failure.addSuppressed(error);
+                }
             }
         }
-        appliedModels.clear();
-        if (failure != null) throw failure;
+        this.appliedModels.clear();
+        if (failure != null) {
+            throw failure;
+        }
     }
 
     private static final class AppliedModel {
@@ -208,14 +222,19 @@ public class BetterModelProvider implements ModelProvider {
         float scale = Float.NaN;
 
         AppliedModel(Npc npc, Entity entity, String modelName, EntityTracker tracker) {
-            this.npc = npc; this.entity = entity; this.modelName = modelName; this.tracker = tracker;
-            baseScaler = tracker.scaler();
+            this.npc = npc;
+            this.entity = entity;
+            this.modelName = modelName;
+            this.tracker = tracker;
+            this.baseScaler = tracker.scaler();
         }
 
         void updateScale(float value) {
-            if (value == scale) return;
-            tracker.scaler(baseScaler.multiply(value));
-            scale = value;
+            if (value == this.scale) {
+                return;
+            }
+            this.tracker.scaler(this.baseScaler.multiply(value));
+            this.scale = value;
         }
     }
 }
